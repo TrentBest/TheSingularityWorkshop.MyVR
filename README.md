@@ -6,6 +6,12 @@ MyVR is a client specifically for VR-capable devices. It presents and interacts 
 
 ## Architecture
 
+![MyVR capability arrangement](docs/assets/myvr-capability-arrangement.svg)
+
+MyVR contributes immersive capabilities; the Experience decides whether those capabilities participate alone or alongside WebApp and AnyApp.
+
+## Architecture
+
 The Workshop separates Experience identity from manifestation:
 
 - **WebApp** — browser reach, discovery, distribution, and browser APIs
