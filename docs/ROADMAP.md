@@ -8,23 +8,41 @@ Define MyVR as the VR manifestation/client and lock boundaries with Experience, 
 
 Establish the client project, detect VR/runtime capabilities, expose a minimal capability model, create a testable session state machine, and establish a semantic-to-VR boundary.
 
-## Phase 2 - First Experience
+## Phase 2 - Creator-defined Experience requirements
 
-Resolve an immutable published Experience identity, load its permitted representation, present a minimal spatial environment, and support one bounded interaction.
+Resolve an immutable published Experience identity and its declared capability requirements.
 
-## Phase 3 - Companion
+Determine whether the current VR device can satisfy the required immersive and interaction capabilities locally, and identify optional/delegable work that may be supplied by WebApp and/or AnyApp.
 
-Connect MyVR to AnyApp, exchange capabilities, synchronize Experience/session identity, heartbeat and reconnect, and delegate one non-frame-critical operation.
+A requirement failure is an Experience capability mismatch, not a reason to redefine MyVR's architectural role.
 
-## Phase 4 - Spatial Experience
+## Phase 3 - First Experience
 
-Observer/camera model, spatial layout, detail horizon, interaction horizon, controller/hand interaction, and appropriate audio/haptic affordances.
+Load the permitted representation, present a minimal spatial environment, and support one bounded interaction.
 
-## Phase 5 - Co-entangled Manifestations
+The first Experience should explicitly demonstrate at least one requirement that can be satisfied by MyVR alone.
+
+## Phase 4 - Companion
+
+Connect MyVR to AnyApp when the Experience requires or benefits from desktop capabilities, exchange capabilities, synchronize Experience/session identity, heartbeat and reconnect, and delegate one non-frame-critical operation.
+
+AnyApp remains independently usable without MyVR.
+
+## Phase 5 - WebApp + MyVR
+
+Coordinate browser and VR manifestations when an Experience requires browser capabilities, browser computation, distribution, or other WebApp-native capabilities that are not available locally on the VR device.
+
+## Phase 6 - Co-entangled Manifestations
 
 WebApp <-> AnyApp <-> MyVR coordinated session, manifestation handoff, shared bounded Experience events, and capability-aware behavior.
 
-## Phase 6 - Device Expansion
+Demonstrate an Experience that intentionally uses all three manifestations simultaneously.
+
+## Phase 7 - Spatial Experience
+
+Observer/camera model, spatial layout, detail horizon, interaction horizon, controller/hand interaction, and appropriate audio/haptic affordances.
+
+## Phase 8 - Device Expansion
 
 Additional runtimes, native/OpenXR implementations where appropriate, WebXR manifestation where appropriate, and device-specific optimization behind adapters.
 
