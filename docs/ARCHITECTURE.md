@@ -1,6 +1,10 @@
 # MyVR Architecture
 
 ## Purpose
+![MyVR capability arrangement](assets/myvr-capability-arrangement.svg)
+
+The visual emphasizes that VR is one manifestation in a capability arrangement, not a mandatory rung in a platform ladder.
+
 
 **MyVR is the VR-device manifestation of The Singularity Workshop.**
 
