@@ -6,7 +6,7 @@ Define MyVR as the VR manifestation/client and lock boundaries with Experience, 
 
 ## Phase 1 - Device Skeleton
 
-<badge>In progress</badge>
+**Status: In progress.**
 
 Implemented in the headless `.NET 8` core:
 
