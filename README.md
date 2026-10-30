@@ -5,17 +5,23 @@
 [![Build and test](https://img.shields.io/github/actions/workflow/status/TrentBest/TheSingularityWorkshop.MyVR/ci.yml?branch=development&style=flat-square&logo=github)](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+## 01 What
+
 **MyVR is the VR-device manifestation of The Singularity Workshop.**
 
 MyVR is a client specifically for VR-capable devices. It presents and interacts with Experiences without becoming the Experience runtime itself.
 
-## Architecture
+## 02 Why
+
+An Experience should keep its identity and meaning when its presentation changes. MyVR gives an Experience an immersive manifestation without turning the headset, renderer, or device runtime into the owner of Experience semantics or composition.
+
+## 03 How
 
 ![MyVR capability arrangement](docs/assets/myvr-capability-arrangement.svg)
 
 MyVR contributes immersive capabilities; the Experience decides whether those capabilities participate alone or alongside WebApp and AnyApp.
 
-## Manifestations and identity
+### Manifestations and identity
 
 The Workshop separates Experience identity from manifestation:
 
@@ -27,19 +33,19 @@ All three may participate in the same Experience without sharing the same render
 
 The canonical artifact identity is **BundleId + Version + ContentHash**. A VR session has its own session identity.
 
-## Companion model
+### Companion model
 
 MyVR can operate without AnyApp. When a companion is available, MyVR may delegate explicitly bounded, non-frame-critical work to it. The companion boundary is not a remote shell.
 
-## Technology boundary
+### Technology boundary
 
 The architecture is intentionally engine-neutral. WebXR, native VR APIs, OpenXR, or device-specific adapters may be used behind the MyVR boundary as implementation choices.
 
-## Guiding principle
+### Guiding principle
 
 > **MyVR is a window into an Experience, not the Experience itself.**
 
-## Implementation status
+### Implementation status
 
 The first executable slice is a **headless, engine-neutral .NET 8 core**:
 
@@ -59,7 +65,7 @@ dotnet test tests/MyVR.Core.Tests/MyVR.Core.Tests.csproj --configuration Release
 
 This verifies the portable lifecycle and adapter contract; it does not verify a headset or VR runtime.
 
-## Theory
+## 05 Documentation and theory
 
 - [Architecture](docs/ARCHITECTURE.md)
 - [Experience Manifestation](docs/EXPERIENCE_MANIFESTATION.md)
