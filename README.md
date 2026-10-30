@@ -4,49 +4,56 @@
 
 **MyVR is the VR-device manifestation of The Singularity Workshop.**
 
-MyVR is a client specifically for VR-capable devices. It presents and interacts with Experiences without becoming the Experience runtime itself.
+MyVR is a client for presenting and interacting with Workshop Experiences through VR-capable devices. It provides immersive device capabilities without becoming the Experience runtime, composition engine, repository, or desktop process authority.
 
-## Architecture
+## 01 What
+
+An Experience should retain its identity and meaning when its presentation changes. MyVR provides the VR-device manifestation: immersive presentation, spatial interaction, and device capabilities behind a client-owned boundary.
 
 ![MyVR capability arrangement](docs/assets/myvr-capability-arrangement.svg)
 
-MyVR contributes immersive capabilities; the Experience decides whether those capabilities participate alone or alongside WebApp and AnyApp.
+## 02 Why
 
-## Architecture
+A headset knows about its display, tracking, and input devices. It does not own the meaning of the Experience or gain authority over the desktop merely because it is connected. MyVR keeps device-specific concerns separate from portable Experience identity and semantics.
 
-The Workshop separates Experience identity from manifestation:
+The canonical artifact identity is **BundleId + Version + ContentHash**. A MyVR session has its own session identity.
 
-- **WebApp** — browser reach, discovery, distribution, and browser APIs
-- **AnyApp** — desktop execution, local services, persistence, artifact caching, and delegated computation
-- **MyVR** — immersive VR presentation, spatial interaction, and device capabilities
+## 03 How
 
-All three may participate in the same Experience without sharing the same renderer or runtime implementation.
+The Workshop has complementary manifestations:
 
-The canonical artifact identity is **BundleId + Version + ContentHash**. A VR session has its own session identity.
+- **WebApp** — browser reach, discovery, distribution, and browser APIs.
+- **AnyApp** — desktop execution, local services, persistence, artifact caching, and explicitly delegated computation.
+- **MyVR** — immersive VR presentation, spatial interaction, and device capabilities.
 
-## Companion model
+These clients may participate in the same Experience simultaneously. There is no universal VR → WebApp → AnyApp ladder; the Experience's declared requirements and available capabilities determine the arrangement.
 
-MyVR can operate without AnyApp. When a companion is available, MyVR may delegate explicitly bounded, non-frame-critical work to it. The companion boundary is not a remote shell.
+MyVR can operate without AnyApp. When a companion is available, MyVR may delegate explicitly bounded, non-frame-critical work. Frame-critical presentation and immediate interaction must remain locally viable.
 
-## Technology boundary
+The architecture remains engine-neutral. WebXR, native VR APIs, OpenXR, and device-specific adapters are possible implementation routes, not selected dependencies.
 
-The architecture is intentionally engine-neutral. WebXR, native VR APIs, OpenXR, or device-specific adapters may be used behind the MyVR boundary as implementation choices.
+## 04 See it in a minute
 
-## Guiding principle
+The current headless core candidate demonstrates immutable Experience identity, a separate session identifier, adapter-reported capability snapshots, and validated lifecycle transitions.
 
-> **MyVR is a window into an Experience, not the Experience itself.**
+With the .NET 8 SDK installed, run:
 
-## Theory
+```bash
+dotnet test tests/MyVR.Core.Tests/MyVR.Core.Tests.csproj --configuration Release
+```
 
-- [Architecture](docs/ARCHITECTURE.md)
-- [Experience Manifestation](docs/EXPERIENCE_MANIFESTATION.md)
-- [VR Boundary](docs/VR_BOUNDARY.md)
-- [AnyApp Companion](docs/ANYAPP_COMPANION.md)
-- [Security Model](docs/SECURITY_MODEL.md)
-- [Roadmap](docs/ROADMAP.md)
-- [Implementation Notes](docs/IMPLEMENTATION_NOTES.md)
+The implementation and its 13 deterministic tests are proposed in [draft PR #12](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/12). The tests do not verify a headset, concrete runtime, spatial rendering, or live device input.
 
-Implementation begins after these boundaries are reviewed against the existing Workshop architecture.
+## 05 Choose your next step
+
+- [MyVR theory learning path](docs/THEORY/README.md) — modular textbook-style chapters with source mapping, exercises, evidence, and limitations.
+- [Architecture](docs/ARCHITECTURE.md) — system position and ownership.
+- [Experience Manifestation](docs/EXPERIENCE_MANIFESTATION.md) — immutable identity and creator-owned requirements.
+- [VR Boundary](docs/VR_BOUNDARY.md) — semantic-to-device translation and frame-critical work.
+- [AnyApp Companion](docs/ANYAPP_COMPANION.md) — bounded desktop companion responsibilities.
+- [Security Model](docs/SECURITY_MODEL.md) — identity, authority, messages, and privacy.
+- [Roadmap](docs/ROADMAP.md) — implementation stages.
+- [Implementation Notes](docs/IMPLEMENTATION_NOTES.md) — implemented core and remaining device work.
 
 ---
 
