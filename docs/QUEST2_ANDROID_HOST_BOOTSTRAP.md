@@ -19,11 +19,11 @@ This project is the first deployable Android application experiment for the stan
 - It creates an OpenXR instance with `XrInstanceCreateInfoAndroidKHR`, requests the head-mounted-display system, and queries the runtime's minimum/maximum Vulkan API version through `xrGetVulkanGraphicsRequirements2KHR`.
 - It creates a Vulkan instance through `xrCreateVulkanInstanceKHR`, asks OpenXR for the runtime-selected physical device, selects a graphics queue family, creates the Vulkan device through `xrCreateVulkanDeviceKHR`, and creates an OpenXR session with `XrGraphicsBindingVulkan2KHR`.
 
-The loader, Android instance creation, Vulkan instance/device creation, and OpenXR session-creation paths are implemented in the Android host. CI verifies compilation and APK packaging only; it does **not** execute these calls on a device. The OpenXR session is created but is not yet driven through session events or begun. Physical Quest 2 runtime validation remains outstanding. The host still does **not** create a swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
+The loader, Android instance creation, Vulkan instance/device creation, and OpenXR session-creation paths are implemented in the Android host. The Activity now polls OpenXR events on the Android main looper, begins the session on `READY`, ends it on `STOPPING`, and reports `VISIBLE`, `FOCUSED`, `LOSS_PENDING`, and `EXITING` states. The event pump is stopped during Activity destruction; teardown attempts to end a running session before destroying it and logs cleanup failures. Android pause/resume is currently only logged; it is not yet coordinated with the OpenXR session lifecycle. CI verifies compilation and APK packaging only; it does **not** execute these calls on a device. Physical Quest 2 runtime validation remains outstanding. The host still does **not** create a swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
 
 ## CI evidence
 
-The Android Release build, signed APK publish, packaged-loader verification, and artifact upload passed on exact source SHA `877df3c7884c92c1ca544c4960cfeab9a3014e69`: [Quest 2 Android workflow #41154240252](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41154240252). The portable core CI also passed on that SHA: [MyVR CI #41154240278](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41154240278). The APK artifact is [myvr-quest2-android-arm64-apk](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41154240252/artifacts/13024666748) (SHA-256 `a34ca6782b71993c46ea9e13c77f3bef3189750b2ee4870104af32fb26080a34`).
+On exact source SHA `d3b38c17d3856bf1d6b7ed90542743bd58f54d29`, both [Quest 2 Android workflow #41155491416](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41155491416) and [MyVR core CI #41155491402](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41155491402) passed. Android CI completed restore, Release build, signed APK publish, packaged-loader verification, and artifact upload. The [ARM64 APK artifact #13025102380](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41155491416/artifacts/13025102380) is 5,608,648 bytes and retained for seven days. These workflows prove build and packaging only, not runtime behavior on a headset.
 
 ## Why .NET 10 Android
 
@@ -33,8 +33,8 @@ The AAR packages `libopenxr_loader.so`. The host explicitly loads that exact lib
 
 ## Next gates
 
-1. Install and execute the current signed APK on physical Quest 2; capture loader initialization, extension enumeration, instance creation, HMD-system selection, Vulkan device creation, and session creation.
-2. Implement OpenXR session event polling and READY/FOCUSED lifecycle handling, including Android pause/resume.
+1. Install and execute the current signed APK on physical Quest 2; capture loader initialization, extension enumeration, instance creation, HMD-system selection, Vulkan device creation, session creation, and observed session-state transitions.
+2. Complete Android pause/resume and Activity-destruction coordination with the OpenXR session state machine; verify teardown behavior on device.
 3. Create and enumerate the projection swapchain using the session's supported view configuration and formats.
 4. Implement a minimal wait/begin/acquire/wait/release/end frame loop and submit a clear frame on physical Quest 2.
 5. Record device/runtime versions and actual headset evidence.
@@ -52,8 +52,8 @@ If managed Android/OpenXR interop requires fragile runtime-specific workarounds,
 ---
 
 <p align="center">
-  <a href="https://github.com/TrentBest/TheSingularityWorkshop" aria-label="The Singularity Workshop living avatar">
-    <img src="https://raw.githubusercontent.com/TrentBest/WebPage/development/TheSingularityWorkshop/wwwroot/Images/TheSingularityWorkshopLivingAvatar.svg" alt="The Singularity Workshop living avatar" width="112" />
+  <a href="https://github.com/TrentBest/TheSingularityWorkshop" aria-label="The Singularity Workshop">
+    <img src="https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop" width="112" />
   </a><br />
   <strong>The Singularity Workshop</strong><br />
   <em>If a picture is worth a thousand words, what is a living picture worth?</em>
