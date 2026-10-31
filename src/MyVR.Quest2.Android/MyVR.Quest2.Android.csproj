@@ -9,7 +9,7 @@
     <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
     <SupportedOSPlatformVersion>29.0</SupportedOSPlatformVersion>
     <TargetPlatformMinVersion>29.0</TargetPlatformMinVersion>
-    <AndroidSupportedAbis>arm64-v8a</AndroidSupportedAbis>
+    <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
