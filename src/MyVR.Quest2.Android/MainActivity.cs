@@ -283,8 +283,8 @@ public sealed class MainActivity : Activity
             throw new InvalidOperationException("vkGetInstanceProcAddr could not be resolved.");
         }
 
-        var appNameBytes = Encoding.UTF8.GetBytes("MyVR Quest 2 Host\\0");
-        var engineNameBytes = Encoding.UTF8.GetBytes("The Singularity Workshop\\0");
+        var appNameBytes = Encoding.UTF8.GetBytes("MyVR Quest 2 Host\0");
+        var engineNameBytes = Encoding.UTF8.GetBytes("The Singularity Workshop\0");
         fixed (byte* appName = appNameBytes)
         fixed (byte* engineName = engineNameBytes)
         {
