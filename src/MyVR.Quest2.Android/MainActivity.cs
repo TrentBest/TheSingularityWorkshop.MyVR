@@ -278,7 +278,7 @@ public sealed class MainActivity : Activity
             procedure => NativeLibrary.GetExport(_vulkanLibrary, procedure)));
 
         var getInstanceProcAddr = _vulkan.GetInstanceProcAddr(default, "vkGetInstanceProcAddr");
-        if (getInstanceProcAddr == null)
+        if ((nint)getInstanceProcAddr == 0)
         {
             throw new InvalidOperationException("vkGetInstanceProcAddr could not be resolved.");
         }
