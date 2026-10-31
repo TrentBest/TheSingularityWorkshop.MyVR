@@ -469,10 +469,15 @@ public sealed class MainActivity : Activity
                 {
                     var stateChanged = (EventDataSessionStateChanged*)&eventData;
                     HandleSessionStateChanged(stateChanged->State);
-                    if (_stopEventPump)
-                    {
-                        return;
-                    }
+                }
+                else if (eventData.Type == StructureType.EventDataInstanceLossPending)
+                {
+                    HandleInstanceLossPending();
+                }
+
+                if (_stopEventPump)
+                {
+                    return;
                 }
             }
         }
@@ -488,6 +493,16 @@ public sealed class MainActivity : Activity
         {
             _eventHandler.PostDelayed(_eventPump, 16);
         }
+    }
+
+    private void HandleInstanceLossPending()
+    {
+        // Instance loss is terminal for this OpenXR instance. Stop polling and
+        // leave the Activity so OnDestroy can perform the normal ordered teardown.
+        _stopEventPump = true;
+        SetStatus("The OpenXR runtime reported instance loss. Closing the Quest host.");
+        Log.Warn(LogTag, "OpenXR instance loss is pending; finishing the Activity.");
+        Finish();
     }
 
     private unsafe void HandleSessionStateChanged(SessionState state)
