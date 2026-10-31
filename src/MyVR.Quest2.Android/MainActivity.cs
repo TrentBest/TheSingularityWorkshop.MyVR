@@ -68,6 +68,10 @@ public sealed class MainActivity : Activity
     private ulong _vulkanMinApiVersion;
     private ulong _vulkanMaxApiVersion;
     private bool _hasInstance;
+    private Handler? _eventHandler;
+    private Java.Lang.Runnable? _eventPump;
+    private bool _isSessionRunning;
+    private bool _isDestroyed;
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -86,6 +90,7 @@ public sealed class MainActivity : Activity
             InitializeOpenXrLoader();
             CreateOpenXrInstanceAndFindHeadset();
             CreateVulkanDeviceAndOpenXrSession();
+            StartOpenXrEventPump();
             SetStatus(
                 $"OpenXR session created for HMD system 0x{_systemId:x}.\n" +
                 $"Vulkan API range: 0x{_vulkanMinApiVersion:x}–0x{_vulkanMaxApiVersion:x}.\n" +
@@ -120,6 +125,8 @@ public sealed class MainActivity : Activity
 
     protected override void OnDestroy()
     {
+        _isDestroyed = true;
+        StopOpenXrEventPump();
         ReleaseOpenXr();
         Log.Info(LogTag, "Android activity destroyed.");
         base.OnDestroy();
@@ -403,6 +410,110 @@ public sealed class MainActivity : Activity
             xrResult = _openXr.CreateSession(_instance, &sessionCreateInfo, ref _session);
             EnsureSuccess(xrResult, "xrCreateSession(Vulkan)");
             _hasSession = true;
+        }
+    }
+
+    private void StartOpenXrEventPump()
+    {
+        _eventHandler = new Handler(Looper.MainLooper!);
+        _eventPump = new Java.Lang.Runnable(PollOpenXrEvents);
+        _eventHandler.Post(_eventPump);
+    }
+
+    private void StopOpenXrEventPump()
+    {
+        if (_eventHandler is not null && _eventPump is not null)
+        {
+            _eventHandler.RemoveCallbacks(_eventPump);
+            _eventPump.Dispose();
+            _eventPump = null;
+        }
+
+        _eventHandler?.Dispose();
+        _eventHandler = null;
+    }
+
+    private unsafe void PollOpenXrEvents()
+    {
+        if (_isDestroyed || _openXr is null || !_hasInstance || !_hasSession)
+        {
+            return;
+        }
+
+        try
+        {
+            while (true)
+            {
+                var eventData = new EventDataBuffer();
+                var result = _openXr.PollEvent(_instance, ref eventData);
+                if (result == XrResult.EventUnavailable)
+                {
+                    break;
+                }
+
+                EnsureSuccess(result, "xrPollEvent");
+
+                if (eventData.Type == StructureType.TypeEventDataSessionStateChanged)
+                {
+                    var stateChanged = (EventDataSessionStateChanged*)&eventData;
+                    HandleSessionStateChanged(stateChanged->State);
+                }
+            }
+        }
+        catch (Exception exception)
+        {
+            Log.Error(LogTag, $"OpenXR event processing failed: {exception}");
+            SetStatus($"OpenXR event processing failed.\\n\\n{exception}");
+            StopOpenXrEventPump();
+            return;
+        }
+
+        if (!_isDestroyed && _eventHandler is not null && _eventPump is not null)
+        {
+            _eventHandler.PostDelayed(_eventPump, 16);
+        }
+    }
+
+    private void HandleSessionStateChanged(SessionState state)
+    {
+        Log.Info(LogTag, $"OpenXR session state changed: {state}.");
+
+        switch (state)
+        {
+            case SessionState.Ready:
+                if (!_isSessionRunning && _openXr is not null)
+                {
+                    var beginInfo = new SessionBeginInfo(
+                        primaryViewConfigurationType: ViewConfigurationType.PrimaryStereo);
+                    EnsureSuccess(
+                        _openXr.BeginSession(_session, ref beginInfo),
+                        "xrBeginSession");
+                    _isSessionRunning = true;
+                    SetStatus("OpenXR session running. Waiting for the first frame pipeline.");
+                }
+                break;
+
+            case SessionState.Stopping:
+                if (_isSessionRunning && _openXr is not null)
+                {
+                    EnsureSuccess(_openXr.EndSession(_session), "xrEndSession");
+                    _isSessionRunning = false;
+                    SetStatus("OpenXR session stopped by the runtime.");
+                }
+                break;
+
+            case SessionState.Focused:
+                SetStatus("OpenXR session focused. Frame submission is the next implementation gate.");
+                break;
+
+            case SessionState.Visible:
+                SetStatus("OpenXR session visible. Frame submission is the next implementation gate.");
+                break;
+
+            case SessionState.LossPending:
+            case SessionState.Exiting:
+                SetStatus($"OpenXR runtime requested session exit: {state}.");
+                break;
         }
     }
 
