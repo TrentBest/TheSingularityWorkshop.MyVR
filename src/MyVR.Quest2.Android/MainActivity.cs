@@ -71,7 +71,7 @@ public sealed class MainActivity : Activity
     private Handler? _eventHandler;
     private Java.Lang.Runnable? _eventPump;
     private bool _isSessionRunning;
-    private bool _sessionLossPending;
+    private bool _stopEventPump;
     private bool _isDestroyed;
 
     protected override void OnCreate(Bundle? savedInstanceState)
@@ -436,7 +436,7 @@ public sealed class MainActivity : Activity
 
     private unsafe void PollOpenXrEvents()
     {
-        if (_isDestroyed || _sessionLossPending || _openXr is null || !_hasInstance || !_hasSession)
+        if (_isDestroyed || _stopEventPump || _openXr is null || !_hasInstance || !_hasSession)
         {
             return;
         }
@@ -458,7 +458,7 @@ public sealed class MainActivity : Activity
                 {
                     var stateChanged = (EventDataSessionStateChanged*)&eventData;
                     HandleSessionStateChanged(stateChanged->State);
-                    if (_sessionLossPending)
+                    if (_stopEventPump)
                     {
                         return;
                     }
@@ -520,20 +520,23 @@ public sealed class MainActivity : Activity
                 break;
 
             case SessionState.Exiting:
-                SetStatus("OpenXR runtime is exiting the session.");
+                RetireSession("EXITING", "The OpenXR runtime requested that this experience exit.");
                 break;
         }
     }
 
     private void HandleSessionLossPending()
     {
-        // LOSS_PENDING means this session is being lost. Do not attempt to end
-        // it or issue further session operations; retire it and stop polling.
-        // This host does not yet implement session recreation, so retain the
-        // instance/Vulkan device for orderly Activity teardown and report the
-        // recovery boundary explicitly.
-        _sessionLossPending = true;
-        SetStatus("The OpenXR runtime reported session loss. The session is being retired; restart the Activity to initialize a new session.");
+        RetireSession("LOSS_PENDING", "The OpenXR runtime reported session loss. Session recreation is not implemented; restart the Activity to initialize a new session.");
+    }
+
+    private void RetireSession(string reason, string status)
+    {
+        // EXITING and LOSS_PENDING are terminal for this session. Do not issue
+        // further session operations or keep polling; retire the session and
+        // leave instance/Vulkan cleanup to the normal Activity teardown path.
+        _stopEventPump = true;
+        SetStatus(status);
 
         if (!_hasSession || _openXr is null)
         {
@@ -543,15 +546,15 @@ public sealed class MainActivity : Activity
         var result = _openXr.DestroySession(_session);
         if (result != XrResult.Success)
         {
-            Log.Error(LogTag, $"xrDestroySession after LOSS_PENDING returned {result}; dependent resources will be retained until Activity teardown.");
-            SetStatus($"The OpenXR runtime reported session loss, and session retirement returned {result}. Native resources are retained until Activity teardown.");
+            Log.Error(LogTag, $"xrDestroySession after {reason} returned {result}; dependent resources will be retained until Activity teardown.");
+            SetStatus($"{status} Session retirement returned {result}; native resources are retained until Activity teardown.");
             return;
         }
 
         _hasSession = false;
         _isSessionRunning = false;
         _session = default;
-        Log.Warn(LogTag, "OpenXR session retired after LOSS_PENDING. Session recreation is not implemented.");
+        Log.Warn(LogTag, $"OpenXR session retired after {reason}. Session recreation is not implemented.");
     }
 
     private static uint ToVulkanApiVersion(ulong xrVersion)
