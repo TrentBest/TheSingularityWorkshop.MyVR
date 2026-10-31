@@ -13,6 +13,19 @@ using Silk.NET.OpenXR;
 using Silk.NET.OpenXR.Extensions.KHR;
 using XrResult = Silk.NET.OpenXR.Result;
 using XrApplicationInfo = Silk.NET.OpenXR.ApplicationInfo;
+using VkApi = Silk.NET.Vulkan.Vk;
+using VkApplicationInfo = Silk.NET.Vulkan.ApplicationInfo;
+using VkDevice = Silk.NET.Vulkan.Device;
+using VkDeviceCreateInfo = Silk.NET.Vulkan.DeviceCreateInfo;
+using VkDeviceQueueCreateInfo = Silk.NET.Vulkan.DeviceQueueCreateInfo;
+using VkInstance = Silk.NET.Vulkan.Instance;
+using VkInstanceCreateInfo = Silk.NET.Vulkan.InstanceCreateInfo;
+using VkPhysicalDevice = Silk.NET.Vulkan.PhysicalDevice;
+using VkPhysicalDeviceFeatures = Silk.NET.Vulkan.PhysicalDeviceFeatures;
+using VkQueue = Silk.NET.Vulkan.Queue;
+using VkQueueFamilyProperties = Silk.NET.Vulkan.QueueFamilyProperties;
+using VkQueueFlags = Silk.NET.Vulkan.QueueFlags;
+using VkResult = Silk.NET.Vulkan.Result;
 
 namespace MyVR.Quest2.Android;
 
@@ -37,6 +50,17 @@ public sealed class MainActivity : Activity
     private XR? _openXr;
     private KhrLoaderInit? _loaderInit;
     private KhrVulkanEnable2? _vulkanEnable2;
+    private VkApi? _vulkan;
+    private nint _vulkanLibrary;
+    private VkInstance _vulkanInstance;
+    private VkPhysicalDevice _vulkanPhysicalDevice;
+    private VkDevice _vulkanDevice;
+    private VkQueue _graphicsQueue;
+    private Session _session;
+    private uint _queueFamilyIndex;
+    private bool _hasVulkanInstance;
+    private bool _hasVulkanDevice;
+    private bool _hasSession;
     private nint _openXrLibrary;
     private nint _javaVm;
     private Instance _instance;
@@ -61,15 +85,16 @@ public sealed class MainActivity : Activity
         {
             InitializeOpenXrLoader();
             CreateOpenXrInstanceAndFindHeadset();
+            CreateVulkanDeviceAndOpenXrSession();
             SetStatus(
-                $"OpenXR initialized. HMD system handle: 0x{_systemId:x}.\n" +
-                $"Vulkan API range: 0x{_vulkanMinApiVersion:x}–0x{_vulkanMaxApiVersion:x}.\n\n" +
-                "Vulkan device creation, session, swapchain, frame submission, " +
+                $"OpenXR session created for HMD system 0x{_systemId:x}.\n" +
+                $"Vulkan API range: 0x{_vulkanMinApiVersion:x}–0x{_vulkanMaxApiVersion:x}.\n" +
+                $"Graphics queue family: {_queueFamilyIndex}.\n\n" +
+                "Session event processing, swapchain, frame submission, " +
                 "Workshop moniker rendering, and controller input are not implemented yet.");
             Log.Info(
                 LogTag,
-                $"OpenXR instance and HMD system ready. Vulkan API range: " +
-                $"0x{_vulkanMinApiVersion:x}–0x{_vulkanMaxApiVersion:x}.");
+                $"OpenXR session created. Vulkan graphics queue family: {_queueFamilyIndex}.");
         }
         catch (Exception exception)
         {
@@ -241,6 +266,162 @@ public sealed class MainActivity : Activity
         _vulkanMaxApiVersion = graphicsRequirements.MaxApiVersionSupported;
     }
 
+    private unsafe void CreateVulkanDeviceAndOpenXrSession()
+    {
+        if (_openXr is null || _vulkanEnable2 is null || !_hasInstance)
+        {
+            throw new InvalidOperationException("The OpenXR instance and Vulkan extension are not ready.");
+        }
+
+        _vulkanLibrary = NativeLibrary.Load("libvulkan.so");
+        _vulkan = new VkApi(new LamdaNativeContext(
+            procedure => NativeLibrary.GetExport(_vulkanLibrary, procedure)));
+
+        var getInstanceProcAddr = _vulkan.GetInstanceProcAddr(default, "vkGetInstanceProcAddr");
+        if (getInstanceProcAddr.Handle == 0)
+        {
+            throw new InvalidOperationException("vkGetInstanceProcAddr could not be resolved.");
+        }
+
+        var appNameBytes = Encoding.UTF8.GetBytes("MyVR Quest 2 Host\\0");
+        var engineNameBytes = Encoding.UTF8.GetBytes("The Singularity Workshop\\0");
+        fixed (byte* appName = appNameBytes)
+        fixed (byte* engineName = engineNameBytes)
+        {
+            var applicationInfo = new VkApplicationInfo(
+                pApplicationName: appName,
+                applicationVersion: 1,
+                pEngineName: engineName,
+                engineVersion: 1,
+                apiVersion: ToVulkanApiVersion(_vulkanMinApiVersion));
+            var instanceCreateInfo = new VkInstanceCreateInfo(
+                pApplicationInfo: &applicationInfo);
+
+            var xrInstanceCreateInfo = new VulkanInstanceCreateInfoKHR(
+                systemId: _systemId,
+                pfnGetInstanceProcAddr: getInstanceProcAddr,
+                vulkanCreateInfo: &instanceCreateInfo);
+
+            var vkInstanceHandle = default(Silk.NET.Core.Native.VkHandle);
+            uint vulkanResult = 0;
+            var xrResult = _vulkanEnable2.CreateVulkanInstance(
+                _instance,
+                ref xrInstanceCreateInfo,
+                ref vkInstanceHandle,
+                ref vulkanResult);
+            EnsureSuccess(xrResult, "xrCreateVulkanInstanceKHR");
+            EnsureVulkanSuccess(vulkanResult, "vkCreateInstance");
+            _vulkanInstance = new VkInstance(vkInstanceHandle.Handle);
+            _hasVulkanInstance = true;
+
+            var graphicsDeviceInfo = new VulkanGraphicsDeviceGetInfoKHR(
+                systemId: _systemId,
+                vulkanInstance: vkInstanceHandle);
+            var physicalDeviceHandle = default(Silk.NET.Core.Native.VkHandle);
+            xrResult = _vulkanEnable2.GetVulkanGraphicsDevice2(
+                _instance,
+                ref graphicsDeviceInfo,
+                ref physicalDeviceHandle);
+            EnsureSuccess(xrResult, "xrGetVulkanGraphicsDevice2KHR");
+            _vulkanPhysicalDevice = new VkPhysicalDevice(physicalDeviceHandle.Handle);
+
+            uint queueFamilyCount = 0;
+            _vulkan.GetPhysicalDeviceQueueFamilyProperties(
+                _vulkanPhysicalDevice,
+                &queueFamilyCount,
+                null);
+            if (queueFamilyCount == 0)
+            {
+                throw new NotSupportedException("The runtime-selected Vulkan device exposes no queue families.");
+            }
+
+            var queueFamilies = new VkQueueFamilyProperties[(int)queueFamilyCount];
+            fixed (VkQueueFamilyProperties* queueFamilyPointer = queueFamilies)
+            {
+                _vulkan.GetPhysicalDeviceQueueFamilyProperties(
+                    _vulkanPhysicalDevice,
+                    &queueFamilyCount,
+                    queueFamilyPointer);
+            }
+
+            var foundGraphicsQueue = false;
+            for (uint index = 0; index < queueFamilyCount; index++)
+            {
+                var queueFamily = queueFamilies[index];
+                if (queueFamily.QueueCount > 0 && (queueFamily.QueueFlags & VkQueueFlags.GraphicsBit) != 0)
+                {
+                    _queueFamilyIndex = index;
+                    foundGraphicsQueue = true;
+                    break;
+                }
+            }
+
+            if (!foundGraphicsQueue)
+            {
+                throw new NotSupportedException("The runtime-selected Vulkan device exposes no graphics queue.");
+            }
+
+            var queuePriority = 1.0f;
+            var queueCreateInfo = new VkDeviceQueueCreateInfo(
+                queueFamilyIndex: _queueFamilyIndex,
+                queueCount: 1,
+                pQueuePriorities: &queuePriority);
+            var enabledFeatures = new VkPhysicalDeviceFeatures();
+            var deviceCreateInfo = new VkDeviceCreateInfo(
+                queueCreateInfoCount: 1,
+                pQueueCreateInfos: &queueCreateInfo,
+                pEnabledFeatures: &enabledFeatures);
+            var xrDeviceCreateInfo = new VulkanDeviceCreateInfoKHR(
+                systemId: _systemId,
+                pfnGetInstanceProcAddr: getInstanceProcAddr,
+                vulkanPhysicalDevice: physicalDeviceHandle,
+                vulkanCreateInfo: &deviceCreateInfo);
+
+            var vkDeviceHandle = default(Silk.NET.Core.Native.VkHandle);
+            vulkanResult = 0;
+            xrResult = _vulkanEnable2.CreateVulkanDevice(
+                _instance,
+                ref xrDeviceCreateInfo,
+                ref vkDeviceHandle,
+                ref vulkanResult);
+            EnsureSuccess(xrResult, "xrCreateVulkanDeviceKHR");
+            EnsureVulkanSuccess(vulkanResult, "vkCreateDevice");
+            _vulkanDevice = new VkDevice(vkDeviceHandle.Handle);
+            _hasVulkanDevice = true;
+
+            _vulkan.GetDeviceQueue(_vulkanDevice, _queueFamilyIndex, 0, out _graphicsQueue);
+
+            var graphicsBinding = new GraphicsBindingVulkan2KHR(
+                instance: vkInstanceHandle,
+                physicalDevice: physicalDeviceHandle,
+                device: vkDeviceHandle,
+                queueFamilyIndex: _queueFamilyIndex,
+                queueIndex: 0);
+            var sessionCreateInfo = new SessionCreateInfo(
+                next: &graphicsBinding,
+                systemId: _systemId);
+            xrResult = _openXr.CreateSession(_instance, &sessionCreateInfo, ref _session);
+            EnsureSuccess(xrResult, "xrCreateSession(Vulkan)");
+            _hasSession = true;
+        }
+    }
+
+    private static uint ToVulkanApiVersion(ulong xrVersion)
+    {
+        var major = (uint)((xrVersion >> 48) & 0x7f);
+        var minor = (uint)((xrVersion >> 32) & 0x3ff);
+        var patch = (uint)(xrVersion & 0xfff);
+        return (major << 22) | (minor << 12) | patch;
+    }
+
+    private static void EnsureVulkanSuccess(uint result, string operation)
+    {
+        if (result != (uint)VkResult.Success)
+        {
+            throw new InvalidOperationException($"{operation} returned {(VkResult)result}.");
+        }
+    }
+
     private static void EnsureSuccess(XrResult result, string operation)
     {
         if (result != XrResult.Success)
@@ -251,6 +432,37 @@ public sealed class MainActivity : Activity
 
     private void ReleaseOpenXr()
     {
+        if (_hasSession && _openXr is not null)
+        {
+            var result = _openXr.DestroySession(_session);
+            if (result != XrResult.Success)
+            {
+                Log.Warn(LogTag, $"xrDestroySession returned {result}.");
+            }
+
+            _hasSession = false;
+            _session = default;
+        }
+
+        if (_hasVulkanDevice && _vulkan is not null)
+        {
+            _vulkan.DestroyDevice(_vulkanDevice, null);
+            _hasVulkanDevice = false;
+            _vulkanDevice = default;
+            _graphicsQueue = default;
+        }
+
+        if (_hasVulkanInstance && _vulkan is not null)
+        {
+            _vulkan.DestroyInstance(_vulkanInstance, null);
+            _hasVulkanInstance = false;
+            _vulkanInstance = default;
+            _vulkanPhysicalDevice = default;
+        }
+
+        _vulkanEnable2?.Dispose();
+        _vulkanEnable2 = null;
+
         if (_hasInstance && _openXr is not null)
         {
             var result = _openXr.DestroyInstance(_instance);
@@ -264,8 +476,14 @@ public sealed class MainActivity : Activity
             _systemId = 0;
         }
 
-        _vulkanEnable2?.Dispose();
-        _vulkanEnable2 = null;
+        _vulkan?.Dispose();
+        _vulkan = null;
+
+        if (_vulkanLibrary != 0)
+        {
+            NativeLibrary.Free(_vulkanLibrary);
+            _vulkanLibrary = 0;
+        }
 
         _loaderInit?.Dispose();
         _loaderInit = null;
