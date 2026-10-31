@@ -545,24 +545,20 @@ public sealed class MainActivity : Activity
     {
         if (_hasSession && _openXr is not null)
         {
-            if (_isSessionRunning)
-            {
-                var endResult = _openXr.EndSession(_session);
-                if (endResult != XrResult.Success)
-                {
-                    Log.Warn(LogTag, $"xrEndSession during teardown returned {endResult}.");
-                }
-
-                _isSessionRunning = false;
-            }
-
+            // xrEndSession is only valid after the runtime sends STOPPING.
+            // Activity destruction can occur in any session state; OpenXR permits
+            // xrDestroySession in any state, so destroy the session directly here.
+            // If destruction fails, keep every dependent native resource alive
+            // rather than invalidating handles that may still be in use.
             var result = _openXr.DestroySession(_session);
             if (result != XrResult.Success)
             {
-                Log.Warn(LogTag, $"xrDestroySession returned {result}.");
+                Log.Error(LogTag, $"xrDestroySession returned {result}; dependent Vulkan/OpenXR resources will be retained.");
+                return;
             }
 
             _hasSession = false;
+            _isSessionRunning = false;
             _session = default;
         }
 
@@ -590,7 +586,8 @@ public sealed class MainActivity : Activity
             var result = _openXr.DestroyInstance(_instance);
             if (result != XrResult.Success)
             {
-                Log.Warn(LogTag, $"xrDestroyInstance returned {result}.");
+                Log.Error(LogTag, $"xrDestroyInstance returned {result}; OpenXR loader resources will be retained.");
+                return;
             }
 
             _hasInstance = false;
