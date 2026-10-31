@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Text;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
@@ -29,10 +30,15 @@ namespace MyVR.Quest2.Android;
 public sealed class MainActivity : Activity
 {
     private const string LogTag = "MyVR.Quest2";
+    private const string AndroidCreateInstanceExtension = "XR_KHR_android_create_instance";
     private TextView? _status;
     private XR? _openXr;
     private KhrLoaderInit? _loaderInit;
     private nint _openXrLibrary;
+    private nint _javaVm;
+    private Instance _instance;
+    private ulong _systemId;
+    private bool _hasInstance;
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -49,18 +55,19 @@ public sealed class MainActivity : Activity
         try
         {
             InitializeOpenXrLoader();
+            CreateOpenXrInstanceAndFindHeadset();
             SetStatus(
-                "Android host launched. Khronos OpenXR loader initialized with Android VM/context.\n\n" +
-                "OpenXR instance/system/session creation, graphics binding, swapchain, and " +
-                "headset rendering are not implemented yet.");
-            Log.Info(LogTag, "Khronos OpenXR loader initialized with Android VM/context.");
+                $"OpenXR initialized. HMD system handle: 0x{_systemId:x}.\n\n" +
+                "Session creation, graphics binding, swapchain, frame submission, " +
+                "Workshop moniker rendering, and controller input are not implemented yet.");
+            Log.Info(LogTag, $"OpenXR instance created and HMD system found: 0x{_systemId:x}.");
         }
         catch (Exception exception)
         {
             SetStatus(
-                "Android host launched, but OpenXR loader initialization failed.\n\n" +
+                "Android host launched, but OpenXR initialization failed.\n\n" +
                 exception);
-            Log.Error(LogTag, $"OpenXR loader initialization failed: {exception}");
+            Log.Error(LogTag, $"OpenXR initialization failed: {exception}");
             ReleaseOpenXr();
         }
     }
@@ -93,8 +100,9 @@ public sealed class MainActivity : Activity
             procedure => NativeLibrary.GetExport(_openXrLibrary, procedure)));
 
         JniEnvironment.References.GetJavaVM(out var javaVm);
+        _javaVm = javaVm;
         var androidInfo = new LoaderInitInfoAndroidKHR(
-            applicationVM: (void*)javaVm,
+            applicationVM: (void*)_javaVm,
             applicationContext: (void*)Handle);
 
         // xrInitializeLoaderKHR must be resolved with a null instance and called
@@ -116,8 +124,116 @@ public sealed class MainActivity : Activity
         }
     }
 
+    private unsafe void CreateOpenXrInstanceAndFindHeadset()
+    {
+        if (_openXr is null || _javaVm == 0)
+        {
+            throw new InvalidOperationException("The OpenXR loader has not been initialized.");
+        }
+
+        uint extensionCount = 0;
+        var result = _openXr.EnumerateInstanceExtensionProperties(
+            null, 0, ref extensionCount, null);
+        EnsureSuccess(result, "xrEnumerateInstanceExtensionProperties(count)");
+
+        var extensions = new ExtensionProperties[extensionCount];
+        for (var index = 0; index < extensions.Length; index++)
+        {
+            extensions[index] = new ExtensionProperties();
+        }
+
+        fixed (ExtensionProperties* extensionPointer = extensions)
+        {
+            result = _openXr.EnumerateInstanceExtensionProperties(
+                null, extensionCount, ref extensionCount, extensionPointer);
+        }
+        EnsureSuccess(result, "xrEnumerateInstanceExtensionProperties(values)");
+
+        var hasAndroidCreateInstance = false;
+        for (var index = 0; index < extensions.Length; index++)
+        {
+            fixed (byte* extensionName = extensions[index].ExtensionName)
+            {
+                if (Marshal.PtrToStringAnsi((nint)extensionName) == AndroidCreateInstanceExtension)
+                {
+                    hasAndroidCreateInstance = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasAndroidCreateInstance)
+        {
+            throw new NotSupportedException(
+                $"The active OpenXR runtime does not advertise {AndroidCreateInstanceExtension}.");
+        }
+
+        var applicationInfo = new ApplicationInfo(
+            applicationVersion: 1,
+            engineVersion: 1,
+            apiVersion: 1UL << 48);
+
+        fixed (byte* applicationName = applicationInfo.ApplicationName)
+        {
+            Encoding.UTF8.GetBytes("MyVR Quest 2 Host")
+                .CopyTo(new Span<byte>(applicationName, 128));
+        }
+
+        fixed (byte* engineName = applicationInfo.EngineName)
+        {
+            Encoding.UTF8.GetBytes("The Singularity Workshop")
+                .CopyTo(new Span<byte>(engineName, 128));
+        }
+
+        var androidCreateInfo = new InstanceCreateInfoAndroidKHR(
+            applicationVM: (void*)_javaVm,
+            applicationActivity: (void*)Handle);
+
+        var extensionNameBytes = Encoding.UTF8.GetBytes(AndroidCreateInstanceExtension + "\0");
+        fixed (byte* extensionName = extensionNameBytes)
+        {
+            byte** enabledExtensions = stackalloc byte*[1];
+            enabledExtensions[0] = extensionName;
+
+            var createInfo = new InstanceCreateInfo(
+                next: &androidCreateInfo,
+                applicationInfo: applicationInfo,
+                enabledExtensionCount: 1,
+                enabledExtensionNames: enabledExtensions);
+
+            result = _openXr.CreateInstance(&createInfo, ref _instance);
+        }
+        EnsureSuccess(result, "xrCreateInstance");
+        _hasInstance = true;
+
+        var systemGetInfo = new SystemGetInfo(formFactor: FormFactor.HeadMountedDisplay);
+        result = _openXr.GetSystem(_instance, ref systemGetInfo, ref _systemId);
+        EnsureSuccess(result, "xrGetSystem(HMD)");
+    }
+
+    private static void EnsureSuccess(XrResult result, string operation)
+    {
+        if (result != XrResult.Success)
+        {
+            throw new InvalidOperationException($"{operation} returned {result}.");
+        }
+    }
+
     private void ReleaseOpenXr()
     {
+        if (_hasInstance && _openXr is not null)
+        {
+            var result = _openXr.DestroyInstance(_instance);
+            if (result != XrResult.Success)
+            {
+                Log.Warn(LogTag, $"xrDestroyInstance returned {result}.");
+            }
+
+            _hasInstance = false;
+            _instance = default;
+            _systemId = 0;
+        }
+
         _loaderInit?.Dispose();
         _loaderInit = null;
 
@@ -129,6 +245,8 @@ public sealed class MainActivity : Activity
             NativeLibrary.Free(_openXrLibrary);
             _openXrLibrary = 0;
         }
+
+        _javaVm = 0;
     }
 
     private void SetStatus(string message)
