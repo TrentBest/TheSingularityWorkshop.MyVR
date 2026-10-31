@@ -49,6 +49,20 @@ public sealed class MyVrSessionTests
     }
 
     [Theory]
+    [InlineData(ImmersiveSessionState.Disconnected)]
+    [InlineData(ImmersiveSessionState.Discovering)]
+    [InlineData(ImmersiveSessionState.Connecting)]
+    public void Session_cannot_suspend_before_a_connection_is_established(ImmersiveSessionState state)
+    {
+        var session = CreateSessionAt(state);
+
+        Assert.Throws<InvalidOperationException>(() =>
+            session.TransitionTo(ImmersiveSessionState.Suspended));
+
+        Assert.Equal(state, session.State);
+    }
+
+    [Theory]
     [InlineData(ImmersiveSessionState.Connected)]
     [InlineData(ImmersiveSessionState.Synchronizing)]
     [InlineData(ImmersiveSessionState.Ready)]
@@ -63,6 +77,28 @@ public sealed class MyVrSessionTests
         session.Resume();
 
         Assert.Equal(priorState, session.State);
+    }
+
+    [Fact]
+    public void Suspended_session_rejects_transitions_until_resumed_or_disconnected()
+    {
+        var session = CreateSessionAt(ImmersiveSessionState.Immersive);
+        session.TransitionTo(ImmersiveSessionState.Suspended);
+
+        Assert.Throws<InvalidOperationException>(() =>
+            session.TransitionTo(ImmersiveSessionState.Ready));
+        Assert.Throws<InvalidOperationException>(() =>
+            session.TransitionTo(ImmersiveSessionState.Connected));
+        Assert.Equal(ImmersiveSessionState.Suspended, session.State);
+    }
+
+    [Fact]
+    public void Resume_is_rejected_when_session_is_not_suspended()
+    {
+        var session = new MyVrSession(CreateExperience());
+
+        Assert.Throws<InvalidOperationException>(() => session.Resume());
+        Assert.Equal(ImmersiveSessionState.Disconnected, session.State);
     }
 
     [Fact]
