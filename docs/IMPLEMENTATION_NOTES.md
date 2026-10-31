@@ -1,3 +1,5 @@
+![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Visualize/development/docs/assets/moniker.svg)
+
 # Implementation Notes
 
 MyVR has two deliberately separate executable layers: a portable, headless .NET 8 core and a candidate standalone Quest 2 Android/OpenXR host. The host is implemented and CI-packaged; physical Quest runtime validation remains outstanding.
@@ -85,3 +87,14 @@ Platform/device tests must remain separate from deterministic core tests. Record
 ## Technology rule
 
 The portable core targets .NET 8, matching the Workshop's cross-platform library baseline. The current Quest host uses .NET 10 Android because its Android packaging/build requirements are separate from the core target. Do not move Android/OpenXR/Vulkan dependencies into MyVR.Core. Additional device/runtime choices remain behind the adapter boundary and should be selected only when target requirements, deployment constraints, licensing, and required APIs are understood.
+
+
+---
+
+<p align="center">
+  <a href="https://github.com/TrentBest/TheSingularityWorkshop" aria-label="The Singularity Workshop">
+    <img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop" width="112" />
+  </a><br />
+  <strong>The Singularity Workshop</strong><br />
+  <em>If a picture is worth a thousand words, what is a living picture worth?</em>
+</p>
