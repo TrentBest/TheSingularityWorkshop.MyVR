@@ -71,6 +71,8 @@ public sealed class MainActivity : Activity
     private Handler? _eventHandler;
     private Java.Lang.Runnable? _eventPump;
     private bool _isSessionRunning;
+    private bool _isResumed;
+    private SessionState? _sessionState;
     private bool _stopEventPump;
     private bool _isDestroyed;
 
@@ -115,18 +117,27 @@ public sealed class MainActivity : Activity
     protected override void OnResume()
     {
         base.OnResume();
+        _isResumed = true;
         Log.Info(LogTag, "Android activity resumed.");
+
+        // READY can arrive before the Activity receives its first OnResume.
+        // Defer xrBeginSession until both conditions are true.
+        TryBeginSession();
     }
 
     protected override void OnPause()
     {
-        Log.Info(LogTag, "Android activity paused.");
+        // The runtime is responsible for transitioning the OpenXR session to
+        // STOPPING. End the session only when that event is received.
+        _isResumed = false;
+        Log.Info(LogTag, "Android activity paused; awaiting the runtime STOPPING event.");
         base.OnPause();
     }
 
     protected override void OnDestroy()
     {
         _isDestroyed = true;
+        _isResumed = false;
         StopOpenXrEventPump();
         ReleaseOpenXr();
         Log.Info(LogTag, "Android activity destroyed.");
@@ -486,16 +497,7 @@ public sealed class MainActivity : Activity
         switch (state)
         {
             case SessionState.Ready:
-                if (!_isSessionRunning && _openXr is not null)
-                {
-                    var beginInfo = new SessionBeginInfo(
-                        primaryViewConfigurationType: ViewConfigurationType.PrimaryStereo);
-                    EnsureSuccess(
-                        _openXr.BeginSession(_session, ref beginInfo),
-                        "xrBeginSession");
-                    _isSessionRunning = true;
-                    SetStatus("OpenXR session running. Waiting for the first frame pipeline.");
-                }
+                TryBeginSession();
                 break;
 
             case SessionState.Stopping:
@@ -523,6 +525,28 @@ public sealed class MainActivity : Activity
                 RetireSession("EXITING", "The OpenXR runtime requested that this experience exit.");
                 break;
         }
+    }
+
+    private void TryBeginSession()
+    {
+        if (_isDestroyed ||
+            !_isResumed ||
+            _sessionState != SessionState.Ready ||
+            _isSessionRunning ||
+            !_hasSession ||
+            _openXr is null)
+        {
+            return;
+        }
+
+        var beginInfo = new SessionBeginInfo(
+            primaryViewConfigurationType: ViewConfigurationType.PrimaryStereo);
+        EnsureSuccess(
+            _openXr.BeginSession(_session, ref beginInfo),
+            "xrBeginSession");
+        _isSessionRunning = true;
+        SetStatus("OpenXR session running. Waiting for the first frame pipeline.");
+        Log.Info(LogTag, "OpenXR session began while the Android Activity was resumed.");
     }
 
     private void HandleSessionLossPending()
