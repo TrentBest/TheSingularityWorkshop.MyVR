@@ -14,9 +14,14 @@ This project is the first deployable Android application experiment for the stan
 - Includes the Khronos `openxr_loader_for_android` 1.1.62 AAR from Maven Central.
 - Declares Meta's immersive-HMD Android launcher intent filter.
 - CI publishes a signed APK, verifies `lib/arm64-v8a/libopenxr_loader.so`, and uploads the APK artifact.
-- The Android Activity now obtains the JavaVM and Activity JNI handle, resolves `xrInitializeLoaderKHR` through `xrGetInstanceProcAddr` with a null instance, and calls it before any extension enumeration or instance creation.
+- The Android Activity obtains the JavaVM and Activity JNI handle, resolves `xrInitializeLoaderKHR` through `xrGetInstanceProcAddr` with a null instance, and calls it before extension enumeration.
+- It enumerates runtime extensions, requires `XR_KHR_android_create_instance`, creates an OpenXR instance with `XrInstanceCreateInfoAndroidKHR`, and requests the head-mounted-display system.
 
-The loader initialization implementation now compiles in the Android Release build and is included in a CI-produced signed ARM64 APK. The CI run verifies the packaged `libopenxr_loader.so`; it does **not** execute `xrInitializeLoaderKHR` on a device. Physical Quest 2 runtime validation remains outstanding. The host still does **not** create an OpenXR instance/system/session, create a graphics binding or swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
+The loader, extension-enumeration, Android instance-creation, and HMD-system request code compile in the Android Release build and are included in a CI-produced signed ARM64 APK. CI verifies packaging and compilation only; it does **not** execute these calls on a device. Physical Quest 2 runtime validation remains outstanding. The host still does **not** create an OpenXR session, graphics binding or swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
+
+## CI evidence
+
+The Android Release build, signed APK publish, packaged-loader verification, and artifact upload passed on exact source SHA `12cefb5c67e3aa5aa1b9bf53cf2d2efffe34018c`: [Quest 2 Android workflow #41152466919](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41152466919). The portable core CI also passed on that SHA: [MyVR CI #41152467090](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41152467090). The APK artifact is [myvr-quest2-android-arm64-apk](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41152466919/artifacts/13023233868) (SHA-256 `ea2629648c75c29af8925ab3f707b454bb7aa58f78bef6b846e038854d834e49`).
 
 ## Why .NET 10 Android
 
@@ -26,12 +31,11 @@ The AAR packages `libopenxr_loader.so`. The host explicitly loads that exact lib
 
 ## Next gates
 
-1. Install and execute the current signed APK on physical Quest 2; capture the actual `xrInitializeLoaderKHR` result and device/runtime versions.
-2. Enable `XR_KHR_android_create_instance` and pass `XrInstanceCreateInfoAndroidKHR` with JavaVM + Activity.
-3. Create an HMD system and Android-compatible graphics session/swapchain.
-4. Handle OpenXR and Android pause/resume lifecycle correctly.
-5. Render and submit a minimal frame on physical Quest 2, then record device/runtime versions and actual evidence.
-6. Add spatial rendering and semantic controller input only after the runtime/session path is proven.
+1. Install and execute the current signed APK on physical Quest 2; capture loader initialization, extension enumeration, instance creation, HMD-system selection, and device/runtime versions.
+2. Create an OpenXR session with a supported Android graphics binding and swapchain.
+3. Handle OpenXR session events and Android pause/resume lifecycle correctly.
+4. Render and submit a minimal frame on physical Quest 2, then record device/runtime versions and actual evidence.
+5. Add spatial rendering and semantic controller input only after the runtime/session path is proven.
 
 If managed Android/OpenXR interop requires fragile runtime-specific workarounds, stop and move the native OpenXR host behind an explicit bridge rather than leaking those details into `MyVR.Core`.
 
