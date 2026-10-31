@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#07131d">
+<meta name="description" content="An assumption-led MyVR distributor business model with editable scenarios, revenue layers, cost accounting, and break-even analysis.">
+<title>MyVR — Business model &amp; economics</title>
+<style>
+:root{color-scheme:dark;--bg:#07131d;--panel:#102432;--panel2:#142d3c;--line:#2a4858;--text:#f2f7f4;--muted:#b4c6c8;--mint:#77e2c1;--cyan:#8bd8f0;--gold:#f2c879;--max:1100px}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 82% -10%,#1a4650 0,transparent 42rem),var(--bg);color:var(--text);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}a{color:var(--cyan);text-underline-offset:4px}.wrap{width:min(calc(100% - 38px),var(--max));margin:auto}
+header{display:flex;justify-content:space-between;align-items:center;gap:22px;padding:20px 0;border-bottom:1px solid #ffffff20}.brand img{width:min(205px,36vw);display:block}nav{display:flex;gap:18px;flex-wrap:wrap}nav a{color:var(--muted);text-decoration:none;font-size:.9rem}
+.hero{padding:66px 0 42px}.eyebrow{color:var(--mint);font-size:.76rem;font-weight:850;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(2.8rem,6vw,5.5rem);line-height:.98;letter-spacing:-.06em;margin:.3em 0}.hero h1 em{color:var(--mint);font-style:normal}.lede{color:var(--muted);font-size:1.1rem;max-width:78ch}
+section{padding:48px 0;border-top:1px solid #ffffff20}h2{font-size:clamp(1.9rem,4vw,3rem);line-height:1.08;letter-spacing:-.04em;margin:.2em 0 .55em}h3{line-height:1.2}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{border:1px solid var(--line);border-radius:17px;padding:20px;background:linear-gradient(145deg,var(--panel2),var(--panel))}.card p,.muted{color:var(--muted)}.tag{color:var(--mint);font-size:.72rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+.note{border-left:3px solid var(--gold);background:#f2c87912;border-radius:0 12px 12px 0;padding:14px 17px;color:#e8d8b5}.inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field label{color:var(--muted);font-size:.87rem}.field input,.field select{width:100%;background:#071923;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px;font:inherit}.field small{color:#91a9ae;font-size:.75rem}
+button{background:var(--mint);color:#062019;border:0;border-radius:999px;padding:10px 16px;font-weight:800;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.stat{background:#ffffff08;border:1px solid var(--line);border-radius:13px;padding:14px}.stat strong{display:block;font-size:1.35rem;color:var(--mint);font-variant-numeric:tabular-nums}.stat span{color:var(--muted);font-size:.8rem}
+table{border-collapse:collapse;width:100%;min-width:700px}th,td{text-align:right;padding:11px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}th:first-child,td:first-child{text-align:left}th{color:var(--mint);font-size:.82rem}td{color:var(--muted);font-size:.9rem}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin-top:16px}
+.formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--cyan);font-size:.88rem;overflow-wrap:anywhere}.footer{padding:34px 0 45px;color:var(--muted);font-size:.88rem;text-align:center}.footer img{display:block;width:190px;margin:22px auto 0}
+@media(max-width:760px){header{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr 1fr}.stats{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}}
+@media(max-width:540px){.wrap{width:min(calc(100% - 26px),var(--max))}.grid,.inputs{grid-template-columns:1fr}.hero{padding:46px 0 32px}section{padding:38px 0}}
+</style>
+</head>
+<body>
+<header class="wrap"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Visualize/development/docs/assets/moniker.svg" alt="The Singularity Workshop"></a><nav><a href="index.html">MyVR home</a><a href="competition.html">Market research</a><a href="#calculator">Economics calculator</a><a href="#governance">Partner model</a></nav></header>
+<main>
+<div class="wrap hero"><div class="eyebrow">MyVR · Business model working paper</div><h1>Build the economics<br><em>from the ground up.</em></h1>
+<p class="lede">The goal is not to force the business to support a predetermined salary or fee. It is to discover what the ecosystem actually needs: operating costs, partner economics, reinvestment, a cash buffer, optional owner compensation, and sustainable profit.</p>
+<p class="note"><strong>Model status:</strong> all adoption, revenue, and cost values in the calculator are editable illustrative inputs—not market facts, quotes, commitments, or a forecast. The $165,000 compensation figure discussed in research is context only, not a required salary or business expense. Owner compensation starts at $0 in this model and is entirely optional.</p></div>
+
+<section><div class="wrap"><div class="eyebrow">01 · Four separate economic layers</div><h2>Follow value before assigning a fee.</h2><div class="grid">
+<article class="card"><div class="tag">Venue revenue</div><h3>Customer-facing business</h3><p>Admissions, group sessions, parties, corporate events, leagues, food, merchandise, and other venue sales. This is the venue's business revenue—not automatically Workshop revenue.</p></article>
+<article class="card"><div class="tag">Distributor revenue</div><h3>Local customer relationship</h3><p>Installation, equipment, onboarding, training, deployment, local support, and account management. The distributor should earn the larger share for doing this work.</p></article>
+<article class="card"><div class="tag">Creator revenue</div><h3>Experience supply</h3><p>Creators may earn from licensed, commissioned, or premium experiences under explicit rights, maintenance, and revenue-share terms.</p></article>
+</div><article class="card" style="margin-top:14px"><div class="tag">Workshop receipts</div><h3>Platform, distribution, and optional services</h3><p>Potential receipts include a venue subscription, attributable usage fee, deployment/service fee, hosting or persistence, analytics, premium support, and a creator-platform fee. The fee base must match the value delivered and be auditable.</p></article>
+<p class="note" style="margin-top:16px">Do not apply a platform percentage to all gross ticket revenue by default. Ticket sales include venue labor, rent, equipment, marketing, taxes, and other value created outside the Workshop platform. Start with attributable platform/content revenue or a clear service fee; test a broader base only if the value and attribution justify it.</p></div></section>
+
+<section id="calculator"><div class="wrap"><div class="eyebrow">02 · Editable scenario model</div><h2>What does one month of operation require?</h2><p class="lede">Choose a growth path and adjust the assumptions. The calculator estimates recurring Workshop receipts and contribution after modeled operating costs. It deliberately keeps venue ticket revenue and distributor margin separate.</p>
+<div class="two">
+<div class="card"><h3>Adoption and activity inputs</h3><div class="inputs">
+<div class="field"><label for="scenario">Growth path</label><select id="scenario"><option value="slow">Slower validation</option><option value="base" selected>Base case</option><option value="fast">Accelerated CiAi-enabled target</option></select><small>Scenario curves are planning assumptions, not evidence of adoption.</small></div>
+<div class="field"><label for="month">Evaluation month</label><select id="month"><option value="6">Month 6</option><option value="12" selected>Month 12</option><option value="24">Month 24</option></select></div>
+<div class="field"><label for="venues">Active paying venues</label><input id="venues" type="number" min="0" max="10000" step="1" value="12"><small>Override the selected scenario if desired.</small></div>
+<div class="field"><label for="base">Attributable monthly platform gross / venue ($)</label><input id="base" type="number" min="0" step="50" value="1500"><small>Only revenue reasonably attributable to the platform/content.</small></div>
+<div class="field"><label for="take">Workshop fee rate (%)</label><input id="take" type="number" min="0" max="100" step=".5" value="3"><small>Compare 1%, 2%, 3%, 5%, or the separate 30% hypothesis.</small></div>
+<div class="field"><label for="partner">Distributor share of attributable gross (%)</label><input id="partner" type="number" min="0" max="100" step="1" value="15"><small>Illustrative share before its own service costs.</small></div>
+<div class="field"><label for="variable">Workshop variable cost / venue / month ($)</label><input id="variable" type="number" min="0" step="10" value="80"><small>Hosting, payment fees, support and maintenance allocation.</small></div>
+<div class="field"><label for="fixed">Workshop fixed operating costs / month ($)</label><input id="fixed" type="number" min="0" step="100" value="2500"><small>Core services, tools, accounting, insurance, and baseline operations.</small></div>
+<div class="field"><label for="reserve">Reinvestment + cash reserve target (% of receipts)</label><input id="reserve" type="number" min="0" max="100" step="1" value="20"></div>
+<div class="field"><label for="owner">Optional owner compensation / month ($)</label><input id="owner" type="number" min="0" step="100" value="0"><small>Set only after the operating model can support it.</small></div>
+</div><p style="margin:16px 0 0"><button id="reset" type="button">Reset illustrative inputs</button></p></div>
+<div class="card"><div class="tag">Selected scenario output</div><h3 id="scenario-title">Base case · Month 12</h3><div class="stats" style="grid-template-columns:1fr 1fr">
+<div class="stat"><strong id="receipts">$0</strong><span>Workshop gross receipts / month</span></div>
+<div class="stat"><strong id="contribution">$0</strong><span>After variable + fixed costs</span></div>
+<div class="stat"><strong id="after">$0</strong><span>After reserve + optional owner pay</span></div>
+<div class="stat"><strong id="breakeven">—</strong><span>Venues to cover modeled costs</span></div>
+</div><p id="interpretation" class="muted">Adjust inputs to explore the economics.</p><p class="formula" id="equation"></p></div>
+</div>
+<div class="table-wrap"><table><thead><tr><th>Workshop fee on attributable base</th><th>Gross receipts / month</th><th>Contribution after costs</th><th>After reserve + owner pay</th></tr></thead><tbody id="rate-table"></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Adoption path</th><th>Active venues at selected month</th><th>Platform gross / month</th><th>Workshop receipts at selected fee</th><th>Contribution after costs</th></tr></thead><tbody id="scenario-table"></tbody></table></div>
+<p class="note" style="margin-top:16px">The 30% concept is shown only as a sensitivity test, not a recommendation or settled price. The earlier allocation idea—20 percentage points for overhead and 10 percentage points as a profit target—must be tested against real cost data. It is not guaranteed that a 20-point overhead allowance covers actual costs or that the remaining 10 points is net profit.</p>
+</div></section>
+
+<section><div class="wrap"><div class="eyebrow">03 · What the calculator is—and isn't—saying</div><h2>Separate the milestones.</h2><div class="grid">
+<article class="card"><div class="tag">Milestone A</div><h3>Operating break-even</h3><p>Recurring Workshop receipts cover variable and fixed operating costs. This is survival of the service, not proof of a healthy ecosystem.</p></article>
+<article class="card"><div class="tag">Milestone B</div><h3>Reinvestment and resilience</h3><p>Receipts also fund a reserve, maintenance, security, product development, partner enablement, and measured growth.</p></article>
+<article class="card"><div class="tag">Milestone C</div><h3>Optional owner compensation</h3><p>Compensation becomes a variable the business can support after costs and reserves. It need not match any external salary benchmark.</p></article>
+</div><article class="card" style="margin-top:14px"><div class="tag">Milestone D</div><h3>Meaningful profit</h3><p>Profit is what remains after real costs, taxes and obligations are accounted for—not the same thing as gross platform receipts or a nominal percentage allocation.</p></article>
+</div></section>
+
+<section><div class="wrap"><div class="eyebrow">04 · Compare the fee structures</div><h2>One percentage is not the only answer.</h2><div class="table-wrap"><table><thead><tr><th>Structure</th><th>Best-fit value basis</th><th>Strength</th><th>Risk / validation needed</th></tr></thead><tbody>
+<tr><td>Per venue / month</td><td>Access to platform and operator tools</td><td>Predictable receipts; easy to budget</td><td>May price out low-volume venues; support scope must be clear</td></tr>
+<tr><td>Per active device</td><td>Managed device fleet, deployment, updates</td><td>Scales with footprint</td><td>Device counts may not reflect actual usage or value</td></tr>
+<tr><td>Per session / player</td><td>Session orchestration or measurable platform usage</td><td>Aligns charge with activity</td><td>Needs reliable metering, reconciliation, refunds and offline rules</td></tr>
+<tr><td>1–5% attributable gross</td><td>Platform/content revenue that the Workshop enables</td><td>Low friction at launch; grows with value</td><td>Requires clear denominator, auditability and sufficient scale</td></tr>
+<tr><td>Deployment / installation</td><td>Setup, configuration, onboarding and training</td><td>Funds real one-time work</td><td>Distributor labor and travel must be priced separately</td></tr>
+<tr><td>Optional managed services</td><td>Hosting, persistence, analytics, premium support</td><td>Customers pay for services they actually use</td><td>Creates service-level obligations and ongoing costs</td></tr>
+<tr><td>Creator licensing share</td><td>Experience licensing and distribution</td><td>Can fund a creator ecosystem</td><td>Creator rights, refunds, maintenance and attribution need explicit contracts</td></tr>
+</tbody></table></div><p class="note" style="margin-top:16px">A proposed 30% total charge should be evaluated only after defining the base. A 30% fee on a narrowly attributable software/content amount is economically different from 30% of venue ticket sales. Compare the partner's total take, the creator's share, payment processing, Workshop costs, and venue value in every case.</p></div></section>
+
+<section id="governance"><div class="wrap"><div class="eyebrow">05 · Partner architecture and governance</div><h2>Scale distribution without surrendering control.</h2><div class="two">
+<div class="card"><h3>Anchor distributor responsibilities</h3><ul class="muted"><li>Own local prospecting and customer relationships.</li><li>Coordinate sales, installation, onboarding and training.</li><li>Provide first-line support and venue feedback.</li><li>Operate a partner-branded domain and scoped workspace.</li><li>Manage only deployments and tenants it is authorized to manage.</li></ul></div>
+<div class="card"><h3>Workshop responsibilities</h3><ul class="muted"><li>Steward core technology and platform evolution.</li><li>Define technical standards, release controls and central escalation.</li><li>Provide deployment authorization, audit and observability.</li><li>Define licensing, creator rights and billing attribution.</li><li>Support export, transfer and partner offboarding.</li></ul></div>
+</div><h3 style="margin-top:28px">Minimum controls before a multi-venue commercial launch</h3><div class="grid">
+<article class="card"><h3>Tenant isolation</h3><p>Partner and venue scopes cannot expose unrelated customer data or deployments.</p></article>
+<article class="card"><h3>Deployment lifecycle</h3><p>Authorized rollout, version visibility, rollback, health monitoring and audit records.</p></article>
+<article class="card"><h3>Commercial attribution</h3><p>Explain who earned what, from which service or event, with a reconciliation path.</p></article>
+</div><p class="note" style="margin-top:16px">Branded domains, distributor workspaces, multi-venue controls, billing, and hosted persistence are proposed architecture—not capabilities this page claims are already implemented. Actual hardware and Quest support remain unproven until tested on target devices.</p></div></section>
+
+<section><div class="wrap"><div class="eyebrow">06 · Adoption strategy and validation</div><h2>CiAi can accelerate the funnel. It cannot guarantee demand.</h2><p class="lede">The accelerated scenario represents a deliberate target: use CiAi and coordinated development to reduce the time required to onboard venues and partners. It is a hypothesis to stress-test alongside slower adoption. The model should be updated with actual conversion, onboarding time, churn, support load, and collected revenue as evidence arrives.</p><div class="grid">
+<article class="card"><h3>Prove one anchor venue</h3><p>Map one real arena, run staff-supervised sessions, validate safety and throughput, and measure customer response.</p></article>
+<article class="card"><h3>Repeat the deployment</h3><p>Show that a distributor can deploy a second and third venue with lower effort and without cross-tenant access.</p></article>
+<article class="card"><h3>Measure unit economics</h3><p>Track actual onboarding labor, support tickets, hosting, payment fees, partner margin, repeat bookings, and retained monthly revenue.</p></article>
+</div><h3 style="margin-top:26px">Evidence to collect before setting public pricing</h3><ul class="muted"><li>At least one real venue's attributable platform/content revenue and operating costs.</li><li>Time and cost to onboard, train, deploy, update, and support each venue.</li><li>Distributor's actual sales cycle, acquisition cost, installation cost, and margin.</li><li>Usage distribution across venues, including quiet months and seasonal demand.</li><li>Retention, renewal, repeat bookings, refunds, and service-level expectations.</li><li>Creator economics and the cost of keeping experiences maintained.</li></ul><p class="note">The first goal is not to maximize the fee. It is to find a model where the venue earns incremental value, the distributor is rewarded for local work, creators can participate fairly, and the Workshop can operate and improve the platform sustainably.</p></div></section>
+</main>
+<footer class="wrap footer"><p>MyVR business-model working paper · Editable assumptions · No public pricing or commercial offer is established.</p><p><a href="index.html">MyVR home</a> · <a href="competition.html">Market landscape</a> · <a href="https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/24">Business-model issue</a></p><img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop"></footer>
+<script>
+(()=>{
+const $=id=>document.getElementById(id), money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number.isFinite(n)?n:0), num=id=>Math.max(0,Number($(id).value)||0);
+const curves={slow:{6:2,12:5,24:14},base:{6:5,12:12,24:35},fast:{6:12,12:35,24:100}};
+const labels={slow:'Slower validation',base:'Base case',fast:'Accelerated CiAi-enabled target'};
+let manual=false;
+function assumptions(){return {path:$('scenario').value,month:Number($('month').value),venues:num('venues'),base:num('base'),take:num('take')/100,partner:num('partner')/100,variable:num('variable'),fixed:num('fixed'),reserve:num('reserve')/100,owner:num('owner')};}
+function calc(a,rate=a.take,venues=a.venues){const gross=venues*a.base,receipts=gross*rate,variable=venues*a.variable,contribution=receipts-variable-a.fixed,reserve=receipts*a.reserve,after=contribution-reserve-a.owner,perVenue=a.base*rate-a.variable,breakEven=perVenue>0?Math.ceil(a.fixed/perVenue):null;return {gross,receipts,variable,contribution,reserve,after,breakEven};}
+function render(){const a=assumptions(),c=calc(a),fmt=n=>money(n);
+$('scenario-title').textContent=labels[a.path]+' · Month '+a.month;
+$('receipts').textContent=fmt(c.receipts);$('contribution').textContent=fmt(c.contribution);$('after').textContent=fmt(c.after);$('breakeven').textContent=c.breakEven===null?'Not reached':c.breakEven.toLocaleString();
+$('interpretation').textContent=c.contribution<0?'At these assumptions, recurring Workshop receipts do not cover modeled monthly costs. Reduce cost, increase attributable value/price, or validate a different route to market.':c.after<0?'Operating contribution is positive, but the selected reserve and optional owner compensation exceed what remains.':'The selected assumptions cover modeled costs and leave a positive amount after the reserve and optional owner compensation. Validate every input with actual operating data.';
+$('equation').textContent='Workshop receipts = venues × attributable platform gross per venue × fee rate. Contribution = receipts − venue-variable cost − fixed monthly cost.';
+const rates=[.01,.02,.03,.05,.30];$('rate-table').innerHTML=rates.map(r=>{const x=calc(a,r);return '<tr><td>'+Math.round(r*100)+'%</td><td>'+fmt(x.receipts)+'</td><td>'+fmt(x.contribution)+'</td><td>'+fmt(x.contribution-x.reserve-a.owner)+'</td></tr>'}).join('');
+$('scenario-table').innerHTML=Object.keys(curves).map(k=>{const v=curves[k][a.month],x=calc(a,a.take,v);return '<tr><td>'+labels[k]+'</td><td>'+v+'</td><td>'+fmt(x.gross)+'</td><td>'+fmt(x.receipts)+'</td><td>'+fmt(x.contribution)+'</td></tr>'}).join('');
+}
+$('scenario').addEventListener('change',()=>{if(!manual){$('venues').value=curves[$('scenario').value][Number($('month').value)]}render()});
+$('month').addEventListener('change',()=>{if(!manual){$('venues').value=curves[$('scenario').value][Number($('month').value)]}render()});
+$('venues').addEventListener('input',()=>{manual=true;render()});
+['base','take','partner','variable','fixed','reserve','owner'].forEach(id=>$(id).addEventListener('input',render));
+$('reset').addEventListener('click',()=>{manual=false;$('scenario').value='base';$('month').value='12';$('venues').value='12';$('base').value='1500';$('take').value='3';$('partner').value='15';$('variable').value='80';$('fixed').value='2500';$('reserve').value='20';$('owner').value='0';render()});
+render();
+})();
+</script>
+</body></html>
