@@ -10,6 +10,7 @@ using Silk.NET.Core;
 using Silk.NET.Core.Contexts;
 using Silk.NET.OpenXR;
 using Silk.NET.OpenXR.Extensions.KHR;
+using XrResult = Silk.NET.OpenXR.Result;
 
 namespace MyVR.Quest2.Android;
 
@@ -102,13 +103,13 @@ public sealed class MainActivity : Activity
         {
             PfnVoidFunction function = default;
             var result = _openXr.GetInstanceProcAddr(default, procedure, ref function);
-            return result == Result.Success ? (nint)function : 0;
+            return result == XrResult.Success ? (nint)function : 0;
         }));
 
         var initializeResult = _loaderInit.InitializeLoader(
             (LoaderInitInfoBaseHeaderKHR*)&androidInfo);
 
-        if (initializeResult != Result.Success)
+        if (initializeResult != XrResult.Success)
         {
             throw new InvalidOperationException(
                 $"xrInitializeLoaderKHR returned {initializeResult}.");
