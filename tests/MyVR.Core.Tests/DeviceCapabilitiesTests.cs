@@ -47,6 +47,33 @@ public sealed class DeviceCapabilitiesTests
             ((IList<string>)capabilities.SupportedCapabilities).Add("hand.tracking"));
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void Capability_snapshot_rejects_blank_runtime_identifiers(string runtimeId)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new DeviceCapabilities(runtimeId, ["immersive.display"]));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void Capability_snapshot_rejects_blank_capability_identifiers(string capability)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new DeviceCapabilities("test.runtime", ["immersive.display", capability]));
+    }
+
+    [Fact]
+    public void Capability_snapshot_rejects_null_capability_collection()
+    {
+        Assert.Throws<ArgumentNullException>(() =>
+            new DeviceCapabilities("test.runtime", null!));
+    }
+
     [Fact]
     public async Task Runtime_adapter_is_testable_without_hardware()
     {
