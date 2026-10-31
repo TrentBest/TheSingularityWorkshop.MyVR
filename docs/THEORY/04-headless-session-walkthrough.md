@@ -117,4 +117,5 @@ The tests do not verify:
 
 ---
 
-<p align="center"><strong>The Singularity Workshop</strong> · <a href="https://github.com/TrentBest">GitHub</a></p>
+<!-- THE SINGULARITY WORKSHOP FOOTER -->
+<p align="center"><img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop" width="200" /></p>
