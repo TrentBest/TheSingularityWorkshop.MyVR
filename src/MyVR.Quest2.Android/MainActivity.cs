@@ -485,7 +485,12 @@ public sealed class MainActivity : Activity
         {
             Log.Error(LogTag, $"OpenXR event processing failed: {exception}");
             SetStatus($"OpenXR event processing failed.\n\n{exception}");
+
+            // A failed event poll or lifecycle operation leaves the native XR
+            // state uncertain. Close the Activity so OnDestroy runs the normal
+            // ordered teardown instead of leaving a live session without polling.
             StopOpenXrEventPump();
+            Finish();
             return;
         }
 
