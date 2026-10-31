@@ -12,6 +12,7 @@ using Silk.NET.Core.Contexts;
 using Silk.NET.OpenXR;
 using Silk.NET.OpenXR.Extensions.KHR;
 using XrResult = Silk.NET.OpenXR.Result;
+using XrApplicationInfo = Silk.NET.OpenXR.ApplicationInfo;
 
 namespace MyVR.Quest2.Android;
 
@@ -133,7 +134,7 @@ public sealed class MainActivity : Activity
 
         uint extensionCount = 0;
         var result = _openXr.EnumerateInstanceExtensionProperties(
-            null, 0, ref extensionCount, null);
+            (byte*)null, 0, ref extensionCount, null);
         EnsureSuccess(result, "xrEnumerateInstanceExtensionProperties(count)");
 
         var extensions = new ExtensionProperties[extensionCount];
@@ -145,7 +146,7 @@ public sealed class MainActivity : Activity
         fixed (ExtensionProperties* extensionPointer = extensions)
         {
             result = _openXr.EnumerateInstanceExtensionProperties(
-                null, extensionCount, ref extensionCount, extensionPointer);
+                (byte*)null, extensionCount, ref extensionCount, extensionPointer);
         }
         EnsureSuccess(result, "xrEnumerateInstanceExtensionProperties(values)");
 
@@ -168,7 +169,7 @@ public sealed class MainActivity : Activity
                 $"The active OpenXR runtime does not advertise {AndroidCreateInstanceExtension}.");
         }
 
-        var applicationInfo = new ApplicationInfo(
+        var applicationInfo = new XrApplicationInfo(
             applicationVersion: 1,
             engineVersion: 1,
             apiVersion: 1UL << 48);
