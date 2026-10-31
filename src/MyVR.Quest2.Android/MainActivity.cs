@@ -593,6 +593,11 @@ public sealed class MainActivity : Activity
         {
             Log.Error(LogTag, $"xrDestroySession after {reason} returned {result}; dependent resources will be retained until Activity teardown.");
             SetStatus($"{status} Session retirement returned {result}; native resources are retained until Activity teardown.");
+
+            // The event pump has already stopped. Finish the Activity so
+            // OnDestroy retries ordered cleanup instead of leaving a live
+            // session with no event processing.
+            Finish();
             return;
         }
 
