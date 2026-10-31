@@ -1,9 +1,15 @@
+using System.Runtime.InteropServices;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using Android.Util;
 using Android.Widget;
+using Java.Interop;
+using Silk.NET.Core;
+using Silk.NET.Core.Contexts;
+using Silk.NET.OpenXR;
+using Silk.NET.OpenXR.Extensions.KHR;
 
 namespace MyVR.Quest2.Android;
 
@@ -23,6 +29,9 @@ public sealed class MainActivity : Activity
 {
     private const string LogTag = "MyVR.Quest2";
     private TextView? _status;
+    private XR? _openXr;
+    private KhrLoaderInit? _loaderInit;
+    private nint _openXrLibrary;
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -31,26 +40,27 @@ public sealed class MainActivity : Activity
         _status = new TextView(this)
         {
             TextSize = 18,
-            Text = "MyVR Quest 2 host bootstrap\nChecking packaged OpenXR loader…"
+            Text = "MyVR Quest 2 host bootstrap\nInitializing the OpenXR loader…"
         };
         _status.SetPadding(32, 32, 32, 32);
         SetContentView(_status);
 
         try
         {
-            Java.Lang.JavaSystem.LoadLibrary("openxr_loader");
+            InitializeOpenXrLoader();
             SetStatus(
-                "Android host launched. Khronos OpenXR loader library loaded.\n\n" +
-                "OpenXR loader initialization, instance/session creation, graphics " +
-                "binding, and headset rendering are not implemented yet.");
-            Log.Info(LogTag, "Khronos OpenXR loader library loaded.");
+                "Android host launched. Khronos OpenXR loader initialized with Android VM/context.\n\n" +
+                "OpenXR instance/system/session creation, graphics binding, swapchain, and " +
+                "headset rendering are not implemented yet.");
+            Log.Info(LogTag, "Khronos OpenXR loader initialized with Android VM/context.");
         }
         catch (Exception exception)
         {
             SetStatus(
-                "Android host launched, but the OpenXR loader could not be loaded.\n\n" +
+                "Android host launched, but OpenXR loader initialization failed.\n\n" +
                 exception);
-            Log.Error(LogTag, $"OpenXR loader load failed: {exception}");
+            Log.Error(LogTag, $"OpenXR loader initialization failed: {exception}");
+            ReleaseOpenXr();
         }
     }
 
@@ -68,8 +78,56 @@ public sealed class MainActivity : Activity
 
     protected override void OnDestroy()
     {
+        ReleaseOpenXr();
         Log.Info(LogTag, "Android activity destroyed.");
         base.OnDestroy();
+    }
+
+    private unsafe void InitializeOpenXrLoader()
+    {
+        // Use the exact AAR library name. Silk.NET's default Android search name
+        // includes a .so.1 suffix, while the Khronos AAR packages libopenxr_loader.so.
+        _openXrLibrary = NativeLibrary.Load("libopenxr_loader.so");
+        _openXr = new XR(new LamdaNativeContext(
+            procedure => NativeLibrary.GetExport(_openXrLibrary, procedure)));
+
+        JniEnvironment.References.GetJavaVM(out var javaVm);
+        var androidInfo = new LoaderInitInfoAndroidKHR(
+            applicationVM: (void*)javaVm,
+            applicationContext: (void*)Handle);
+
+        // xrInitializeLoaderKHR must be resolved with a null instance and called
+        // before extension enumeration or any other OpenXR operation.
+        _loaderInit = new KhrLoaderInit(new LamdaNativeContext(procedure =>
+        {
+            PfnVoidFunction function = default;
+            var result = _openXr.GetInstanceProcAddr(default, procedure, ref function);
+            return result == Result.Success ? (nint)function : 0;
+        }));
+
+        var initializeResult = _loaderInit.InitializeLoader(
+            (LoaderInitInfoBaseHeaderKHR*)&androidInfo);
+
+        if (initializeResult != Result.Success)
+        {
+            throw new InvalidOperationException(
+                $"xrInitializeLoaderKHR returned {initializeResult}.");
+        }
+    }
+
+    private void ReleaseOpenXr()
+    {
+        _loaderInit?.Dispose();
+        _loaderInit = null;
+
+        _openXr?.Dispose();
+        _openXr = null;
+
+        if (_openXrLibrary != 0)
+        {
+            NativeLibrary.Free(_openXrLibrary);
+            _openXrLibrary = 0;
+        }
     }
 
     private void SetStatus(string message)
