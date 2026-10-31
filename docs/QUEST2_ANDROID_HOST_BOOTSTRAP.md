@@ -15,9 +15,10 @@ This project is the first deployable Android application experiment for the stan
 - Declares Meta's immersive-HMD Android launcher intent filter.
 - CI publishes a signed APK, verifies `lib/arm64-v8a/libopenxr_loader.so`, and uploads the APK artifact.
 - The Android Activity obtains the JavaVM and Activity JNI handle, resolves `xrInitializeLoaderKHR` through `xrGetInstanceProcAddr` with a null instance, and calls it before extension enumeration.
-- It enumerates runtime extensions, requires `XR_KHR_android_create_instance`, creates an OpenXR instance with `XrInstanceCreateInfoAndroidKHR`, and requests the head-mounted-display system.
+- It enumerates runtime extensions and requires both `XR_KHR_android_create_instance` and `XR_KHR_vulkan_enable2`.
+- It creates an OpenXR instance with `XrInstanceCreateInfoAndroidKHR`, requests the head-mounted-display system, and queries the runtime's minimum/maximum Vulkan API version through `xrGetVulkanGraphicsRequirements2KHR`.
 
-The loader, extension-enumeration, Android instance-creation, and HMD-system request code compile in the Android Release build and are included in a CI-produced signed ARM64 APK. CI verifies packaging and compilation only; it does **not** execute these calls on a device. Physical Quest 2 runtime validation remains outstanding. The host still does **not** create an OpenXR session, graphics binding or swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
+The loader, extension-enumeration, Android instance-creation, HMD-system request, Vulkan extension negotiation, and Vulkan graphics-requirements query are implemented in the Android host. CI verifies compilation and APK packaging only; it does **not** execute these calls on a device. Physical Quest 2 runtime validation remains outstanding. The host still does **not** create a Vulkan instance/device, OpenXR session, swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
 
 ## CI evidence
 
@@ -31,11 +32,12 @@ The AAR packages `libopenxr_loader.so`. The host explicitly loads that exact lib
 
 ## Next gates
 
-1. Install and execute the current signed APK on physical Quest 2; capture loader initialization, extension enumeration, instance creation, HMD-system selection, and device/runtime versions.
-2. Create an OpenXR session with a supported Android graphics binding and swapchain.
-3. Handle OpenXR session events and Android pause/resume lifecycle correctly.
-4. Render and submit a minimal frame on physical Quest 2, then record device/runtime versions and actual evidence.
-5. Add spatial rendering and semantic controller input only after the runtime/session path is proven.
+1. Install and execute the current signed APK on physical Quest 2; capture loader initialization, extension enumeration, instance creation, HMD-system selection, Vulkan extension support, and the runtime's Vulkan API range.
+2. Use the reported Vulkan requirements and runtime-selected physical device to create the Vulkan instance/device and queue.
+3. Create an OpenXR session with `XrGraphicsBindingVulkan2KHR`, then create and enumerate the projection swapchain.
+4. Handle OpenXR session events and Android pause/resume lifecycle correctly.
+5. Render and submit a minimal frame on physical Quest 2, then record device/runtime versions and actual evidence.
+6. Add spatial rendering and semantic controller input only after the runtime/session path is proven.
 
 If managed Android/OpenXR interop requires fragile runtime-specific workarounds, stop and move the native OpenXR host behind an explicit bridge rather than leaking those details into `MyVR.Core`.
 
