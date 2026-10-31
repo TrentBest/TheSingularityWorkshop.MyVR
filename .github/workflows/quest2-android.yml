@@ -41,3 +41,28 @@ jobs:
 
       - name: Build Android host
         run: dotnet build src/MyVR.Quest2.Android/MyVR.Quest2.Android.csproj --configuration Release --no-restore
+
+      - name: Publish Quest 2 APK
+        run: dotnet publish src/MyVR.Quest2.Android/MyVR.Quest2.Android.csproj --configuration Release --no-restore --output "${{ runner.temp }}/myvr-quest2-apk" -p:AndroidPackageFormat=apk
+
+      - name: Verify packaged OpenXR loader
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t apks < <(find "${{ runner.temp }}/myvr-quest2-apk" -maxdepth 1 -type f -name '*.apk')
+          if [ "${#apks[@]}" -ne 1 ]; then
+            echo "Expected exactly one APK; found ${#apks[@]}."
+            find "${{ runner.temp }}/myvr-quest2-apk" -maxdepth 2 -type f -print
+            exit 1
+          fi
+          echo "Inspecting ${apks[0]}"
+          unzip -l "${apks[0]}" | tee "${{ runner.temp }}/apk-contents.txt"
+          grep -Eq 'lib/arm64-v8a/libopenxr_loader\.so$' "${{ runner.temp }}/apk-contents.txt"
+
+      - name: Upload Quest 2 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: myvr-quest2-android-arm64-apk
+          path: ${{ runner.temp }}/myvr-quest2-apk/*.apk
+          if-no-files-found: error
+          retention-days: 7
