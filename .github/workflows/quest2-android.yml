@@ -1,0 +1,41 @@
+name: Quest 2 Android Host
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-host:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install .NET Android workload
+        run: dotnet workload install android
+
+      - name: Restore Android host
+        run: dotnet restore src/MyVR.Quest2.Android/MyVR.Quest2.Android.csproj
+
+      - name: Build Android host
+        run: dotnet build src/MyVR.Quest2.Android/MyVR.Quest2.Android.csproj --configuration Release --no-restore
