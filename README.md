@@ -6,6 +6,12 @@
 
 MyVR is a client specifically for VR-capable devices. It presents and interacts with Experiences without becoming the Experience runtime itself.
 
+## Explore the business vision
+
+The [MyVR GitHub Pages site](https://trentbest.github.io/TheSingularityWorkshop.MyVR/) presents the broader vision: how the Workshop's technology could scale from an individual venue into a partner-led distribution network.
+
+It also includes our [competitive landscape research](https://trentbest.github.io/TheSingularityWorkshop.MyVR/competition.html) and the developing business and pricing model. These pages are an invitation to examine the opportunity and help us test the assumptions—not a claim that the proposed distributor portal or commercial capabilities are already implemented.
+
 ## Architecture
 
 ![MyVR capability arrangement](docs/assets/myvr-capability-arrangement.svg)
@@ -51,9 +57,7 @@ Implementation begins after these boundaries are reviewed against the existing W
 ---
 
 <p align="center">
-  <a href="https://github.com/TrentBest/TheSingularityWorkshop" aria-label="The Singularity Workshop living avatar">
-    <img src="https://raw.githubusercontent.com/TrentBest/WebPage/development/TheSingularityWorkshop/wwwroot/Images/TheSingularityWorkshopLivingAvatar.svg" alt="The Singularity Workshop living avatar — a digital vortex converging on its central eye" width="112" />
-  </a><br />
+  <img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop" width="180" /><br />
   <strong>The Singularity Workshop</strong><br />
   <em>If a picture is worth a thousand words, what is a living picture worth?</em><br />
   <a href="https://github.com/TrentBest">GitHub</a> · <a href="https://www.patreon.com/TheSingularityWorkshop">Support the Workshop</a>
