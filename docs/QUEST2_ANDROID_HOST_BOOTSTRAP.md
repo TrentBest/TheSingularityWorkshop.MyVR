@@ -35,12 +35,13 @@ The AAR packages `libopenxr_loader.so`. The host explicitly loads that exact lib
 
 ## Next gates
 
-1. Install and execute the current signed APK on physical Quest 2; capture loader initialization, extension enumeration, instance creation, HMD-system selection, Vulkan device creation, session creation, and observed session-state transitions.
-2. Complete Android pause/resume and Activity-destruction coordination with the OpenXR session state machine; verify `LOSS_PENDING`/`EXITING` retirement and teardown behavior on device.
-3. Create and enumerate the projection swapchain using the session's supported view configuration and formats.
-4. Implement a minimal wait/begin/acquire/wait/release/end frame loop and submit a clear frame on physical Quest 2.
-5. Record device/runtime versions and actual headset evidence.
-6. Add spatial rendering and semantic controller input only after the frame loop is proven.
+The Android pause/resume gate is implemented: `READY` is gated on Activity resume, `STOPPING` drives `xrEndSession`, and terminal session states stop polling and retire the session. CI verifies that this code builds and packages; runtime behavior still requires physical-device evidence.
+
+1. Install and execute the current signed APK on physical Quest 2. Capture loader initialization, extension enumeration, instance creation, HMD-system selection, Vulkan device creation, session creation, pause/resume behavior, terminal-state handling, and teardown.
+2. Create and enumerate the projection swapchain using the session's supported view configuration and formats.
+3. Implement a minimal wait/begin/acquire/wait/release/end frame loop and submit a clear frame on physical Quest 2.
+4. Record device/runtime versions and actual headset evidence.
+5. Add spatial rendering and semantic controller input only after the frame loop is proven.
 
 If managed Android/OpenXR interop requires fragile runtime-specific workarounds, stop and move the native OpenXR host behind an explicit bridge rather than leaking those details into `MyVR.Core`.
 
