@@ -22,6 +22,20 @@ public sealed class MyVrSessionTests
     }
 
     [Fact]
+    public void Session_rejects_null_experience_identity()
+    {
+        Assert.Throws<ArgumentNullException>(() =>
+            new MyVrSession(null!));
+    }
+
+    [Fact]
+    public void Session_rejects_empty_session_identity()
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new MyVrSession(CreateExperience(), Guid.Empty));
+    }
+
+    [Fact]
     public void Session_accepts_the_expected_startup_path()
     {
         var session = new MyVrSession(CreateExperience());
