@@ -13,19 +13,22 @@ This project is the first deployable Android application experiment for the stan
 - Uses Silk.NET OpenXR 2.23.0 bindings and the KHR extension bindings.
 - Includes the Khronos `openxr_loader_for_android` 1.1.62 AAR from Maven Central.
 - Declares Meta's immersive-HMD Android launcher intent filter.
-- Loads the packaged native loader library and reports success or failure in the app.
+- CI publishes a signed APK, verifies `lib/arm64-v8a/libopenxr_loader.so`, and uploads the APK artifact.
+- The Android Activity now obtains the JavaVM and Activity JNI handle, resolves `xrInitializeLoaderKHR` through `xrGetInstanceProcAddr` with a null instance, and calls it before any extension enumeration or instance creation.
 
-The host currently does **not** initialize the OpenXR loader with Android VM/activity context, create an OpenXR instance/system/session, create a graphics binding or swapchain, submit frames, render the Workshop moniker, or process controller input. Loading the shared library is a packaging smoke check only; it is not an OpenXR runtime or headset test.
+The loader initialization code has been added but is not yet validated by a completed CI build or physical headset execution. The host still does **not** create an OpenXR instance/system/session, create a graphics binding or swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
 
 ## Why .NET 10 Android
 
 The Khronos loader is distributed as an Android AAR. The `AndroidMavenLibrary` build item that resolves Maven artifacts is available in .NET 9 and later, so this host uses the current .NET 10 Android target while continuing to consume the portable .NET 8 core. The Android project does not force a framework upgrade on `MyVR.Core`.
 
+The AAR packages `libopenxr_loader.so`. The host explicitly loads that exact library name and supplies Silk.NET with a native context backed by its exports; Silk.NET's default Android search name includes a `.so.1` suffix and does not match the AAR's packaged filename.
+
 ## Next gates
 
-1. Build and package this Android application in CI.
-2. Obtain the JavaVM and Activity references safely from the Android host and call `xrInitializeLoaderKHR` before OpenXR enumeration or instance creation.
-3. Enable `XR_KHR_android_create_instance` and pass the Android instance-create structure.
+1. Compile and publish the loader-initialization implementation in Android CI.
+2. Install and execute on physical Quest 2; capture the actual `xrInitializeLoaderKHR` result and device/runtime versions.
+3. Enable `XR_KHR_android_create_instance` and pass `XrInstanceCreateInfoAndroidKHR` with JavaVM + Activity.
 4. Create an HMD system and Android-compatible graphics session/swapchain.
 5. Handle OpenXR and Android pause/resume lifecycle correctly.
 6. Install and run on a physical Quest 2, then record device/runtime versions and actual evidence.
