@@ -492,6 +492,7 @@ public sealed class MainActivity : Activity
 
     private unsafe void HandleSessionStateChanged(SessionState state)
     {
+        _sessionState = state;
         Log.Info(LogTag, $"OpenXR session state changed: {state}.");
 
         switch (state)
@@ -527,7 +528,7 @@ public sealed class MainActivity : Activity
         }
     }
 
-    private void TryBeginSession()
+    private unsafe void TryBeginSession()
     {
         if (_isDestroyed ||
             !_isResumed ||
