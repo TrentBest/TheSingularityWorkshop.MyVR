@@ -545,6 +545,17 @@ public sealed class MainActivity : Activity
     {
         if (_hasSession && _openXr is not null)
         {
+            if (_isSessionRunning)
+            {
+                var endResult = _openXr.EndSession(_session);
+                if (endResult != XrResult.Success)
+                {
+                    Log.Warn(LogTag, $"xrEndSession during teardown returned {endResult}.");
+                }
+
+                _isSessionRunning = false;
+            }
+
             var result = _openXr.DestroySession(_session);
             if (result != XrResult.Success)
             {
