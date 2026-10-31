@@ -50,7 +50,7 @@ public sealed class MainActivity : Activity
             SetStatus(
                 "Android host launched, but the OpenXR loader could not be loaded.\n\n" +
                 exception);
-            Log.Error(LogTag, exception, "OpenXR loader load failed.");
+            Log.Error(LogTag, $"OpenXR loader load failed: {exception}");
         }
     }
 
