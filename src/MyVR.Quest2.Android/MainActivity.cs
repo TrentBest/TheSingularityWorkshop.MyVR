@@ -453,7 +453,7 @@ public sealed class MainActivity : Activity
 
                 EnsureSuccess(result, "xrPollEvent");
 
-                if (eventData.Type == StructureType.TypeEventDataSessionStateChanged)
+                if (eventData.Type == StructureType.EventDataSessionStateChanged)
                 {
                     var stateChanged = (EventDataSessionStateChanged*)&eventData;
                     HandleSessionStateChanged(stateChanged->State);
@@ -463,7 +463,7 @@ public sealed class MainActivity : Activity
         catch (Exception exception)
         {
             Log.Error(LogTag, $"OpenXR event processing failed: {exception}");
-            SetStatus($"OpenXR event processing failed.\\n\\n{exception}");
+            SetStatus($"OpenXR event processing failed.\n\n{exception}");
             StopOpenXrEventPump();
             return;
         }
@@ -474,7 +474,7 @@ public sealed class MainActivity : Activity
         }
     }
 
-    private void HandleSessionStateChanged(SessionState state)
+    private unsafe void HandleSessionStateChanged(SessionState state)
     {
         Log.Info(LogTag, $"OpenXR session state changed: {state}.");
 
