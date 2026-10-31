@@ -174,17 +174,13 @@ public sealed class MainActivity : Activity
             engineVersion: 1,
             apiVersion: 1UL << 48);
 
-        fixed (byte* applicationName = applicationInfo.ApplicationName)
-        {
-            Encoding.UTF8.GetBytes("MyVR Quest 2 Host")
-                .CopyTo(new Span<byte>(applicationName, 128));
-        }
+        byte* applicationName = applicationInfo.ApplicationName;
+        Encoding.UTF8.GetBytes("MyVR Quest 2 Host")
+            .CopyTo(new Span<byte>(applicationName, 128));
 
-        fixed (byte* engineName = applicationInfo.EngineName)
-        {
-            Encoding.UTF8.GetBytes("The Singularity Workshop")
-                .CopyTo(new Span<byte>(engineName, 128));
-        }
+        byte* engineName = applicationInfo.EngineName;
+        Encoding.UTF8.GetBytes("The Singularity Workshop")
+            .CopyTo(new Span<byte>(engineName, 128));
 
         var androidCreateInfo = new InstanceCreateInfoAndroidKHR(
             applicationVM: (void*)_javaVm,
