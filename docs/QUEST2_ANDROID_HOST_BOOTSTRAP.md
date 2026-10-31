@@ -10,19 +10,20 @@ This project is the first deployable Android application experiment for the stan
 
 - Targets `net10.0-android` and packages only the `arm64-v8a` ABI.
 - References the existing `net8.0` `MyVR.Core` project without changing its target or dependencies.
-- Uses Silk.NET OpenXR 2.23.0 bindings and the KHR extension bindings.
+- Uses Silk.NET OpenXR, KHR extension, and Vulkan 2.23.0 bindings.
 - Includes the Khronos `openxr_loader_for_android` 1.1.62 AAR from Maven Central.
 - Declares Meta's immersive-HMD Android launcher intent filter.
 - CI publishes a signed APK, verifies `lib/arm64-v8a/libopenxr_loader.so`, and uploads the APK artifact.
 - The Android Activity obtains the JavaVM and Activity JNI handle, resolves `xrInitializeLoaderKHR` through `xrGetInstanceProcAddr` with a null instance, and calls it before extension enumeration.
 - It enumerates runtime extensions and requires both `XR_KHR_android_create_instance` and `XR_KHR_vulkan_enable2`.
 - It creates an OpenXR instance with `XrInstanceCreateInfoAndroidKHR`, requests the head-mounted-display system, and queries the runtime's minimum/maximum Vulkan API version through `xrGetVulkanGraphicsRequirements2KHR`.
+- It creates a Vulkan instance through `xrCreateVulkanInstanceKHR`, asks OpenXR for the runtime-selected physical device, selects a graphics queue family, creates the Vulkan device through `xrCreateVulkanDeviceKHR`, and creates an OpenXR session with `XrGraphicsBindingVulkan2KHR`.
 
-The loader, extension-enumeration, Android instance-creation, HMD-system request, Vulkan extension negotiation, and Vulkan graphics-requirements query are implemented in the Android host. CI verifies compilation and APK packaging only; it does **not** execute these calls on a device. Physical Quest 2 runtime validation remains outstanding. The host still does **not** create a Vulkan instance/device, OpenXR session, swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
+The loader, Android instance creation, Vulkan instance/device creation, and OpenXR session-creation paths are implemented in the Android host. CI verifies compilation and APK packaging only; it does **not** execute these calls on a device. The OpenXR session is created but is not yet driven through session events or begun. Physical Quest 2 runtime validation remains outstanding. The host still does **not** create a swapchain, submit frames, render the Workshop moniker, or process controller input. A successful APK build/package check is not proof of runtime initialization.
 
 ## CI evidence
 
-The Android Release build, signed APK publish, packaged-loader verification, and artifact upload passed on exact source SHA `12cefb5c67e3aa5aa1b9bf53cf2d2efffe34018c`: [Quest 2 Android workflow #41152466919](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41152466919). The portable core CI also passed on that SHA: [MyVR CI #41152467090](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41152467090). The APK artifact is [myvr-quest2-android-arm64-apk](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41152466919/artifacts/13023233868) (SHA-256 `ea2629648c75c29af8925ab3f707b454bb7aa58f78bef6b846e038854d834e49`).
+The Android Release build, signed APK publish, packaged-loader verification, and artifact upload passed on exact source SHA `877df3c7884c92c1ca544c4960cfeab9a3014e69`: [Quest 2 Android workflow #41154240252](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41154240252). The portable core CI also passed on that SHA: [MyVR CI #41154240278](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41154240278). The APK artifact is [myvr-quest2-android-arm64-apk](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41154240252/artifacts/13024666748) (SHA-256 `a34ca6782b71993c46ea9e13c77f3bef3189750b2ee4870104af32fb26080a34`).
 
 ## Why .NET 10 Android
 
@@ -32,12 +33,12 @@ The AAR packages `libopenxr_loader.so`. The host explicitly loads that exact lib
 
 ## Next gates
 
-1. Install and execute the current signed APK on physical Quest 2; capture loader initialization, extension enumeration, instance creation, HMD-system selection, Vulkan extension support, and the runtime's Vulkan API range.
-2. Use the reported Vulkan requirements and runtime-selected physical device to create the Vulkan instance/device and queue.
-3. Create an OpenXR session with `XrGraphicsBindingVulkan2KHR`, then create and enumerate the projection swapchain.
-4. Handle OpenXR session events and Android pause/resume lifecycle correctly.
-5. Render and submit a minimal frame on physical Quest 2, then record device/runtime versions and actual evidence.
-6. Add spatial rendering and semantic controller input only after the runtime/session path is proven.
+1. Install and execute the current signed APK on physical Quest 2; capture loader initialization, extension enumeration, instance creation, HMD-system selection, Vulkan device creation, and session creation.
+2. Implement OpenXR session event polling and READY/FOCUSED lifecycle handling, including Android pause/resume.
+3. Create and enumerate the projection swapchain using the session's supported view configuration and formats.
+4. Implement a minimal wait/begin/acquire/wait/release/end frame loop and submit a clear frame on physical Quest 2.
+5. Record device/runtime versions and actual headset evidence.
+6. Add spatial rendering and semantic controller input only after the frame loop is proven.
 
 If managed Android/OpenXR interop requires fragile runtime-specific workarounds, stop and move the native OpenXR host behind an explicit bridge rather than leaking those details into `MyVR.Core`.
 
