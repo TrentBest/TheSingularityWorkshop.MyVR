@@ -1,0 +1,68 @@
+name: Quest 2 Android Host
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-host:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: ''
+
+      - name: Install .NET Android workload
+        run: dotnet workload install android
+
+      - name: Restore Android host
+        run: dotnet restore src/MyVR.Quest2.Android/MyVR.Quest2.Android.csproj
+
+      - name: Build Android host
+        run: dotnet build src/MyVR.Quest2.Android/MyVR.Quest2.Android.csproj --configuration Release --no-restore
+
+      - name: Publish Quest 2 APK
+        run: dotnet publish src/MyVR.Quest2.Android/MyVR.Quest2.Android.csproj --configuration Release --no-restore --output "${{ runner.temp }}/myvr-quest2-apk" -p:AndroidPackageFormat=apk
+
+      - name: Verify packaged OpenXR loader
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t apks < <(find "${{ runner.temp }}/myvr-quest2-apk" -maxdepth 1 -type f -name '*-Signed.apk')
+          if [ "${#apks[@]}" -ne 1 ]; then
+            echo "Expected exactly one signed APK; found ${#apks[@]}."
+            find "${{ runner.temp }}/myvr-quest2-apk" -maxdepth 2 -type f -print
+            exit 1
+          fi
+          echo "Inspecting ${apks[0]}"
+          unzip -l "${apks[0]}" | tee "${{ runner.temp }}/apk-contents.txt"
+          grep -Eq 'lib/arm64-v8a/libopenxr_loader\.so$' "${{ runner.temp }}/apk-contents.txt"
+
+      - name: Upload Quest 2 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: myvr-quest2-android-arm64-apk
+          path: ${{ runner.temp }}/myvr-quest2-apk/*-Signed.apk
+          if-no-files-found: error
+          retention-days: 7

@@ -6,22 +6,51 @@ namespace MyVR.Core.Tests;
 public sealed class ExperienceIdentityTests
 {
     [Fact]
-    public void Identity_requires_all_three_artifact_identity_parts()
+    public void Identity_normalizes_values_and_compares_by_artifact_identity()
     {
-        Assert.Throws<ArgumentException>(() => new ExperienceIdentity("", "1.0.0", "hash"));
-        Assert.Throws<ArgumentException>(() => new ExperienceIdentity("bundle", " ", "hash"));
-        Assert.Throws<ArgumentException>(() => new ExperienceIdentity("bundle", "1.0.0", ""));
+        var first = new ExperienceIdentity(
+            " experience.demo ",
+            " 1.2.3 ",
+            " sha256:0123456789abcdef ");
+        var second = new ExperienceIdentity(
+            "experience.demo",
+            "1.2.3",
+            "sha256:0123456789abcdef");
+
+        Assert.Equal("experience.demo", first.BundleId);
+        Assert.Equal("1.2.3", first.Version);
+        Assert.Equal("sha256:0123456789abcdef", first.ContentHash);
+        Assert.Equal(first, second);
+        Assert.Equal(first.GetHashCode(), second.GetHashCode());
     }
 
-    [Fact]
-    public void Identity_trims_values_and_compares_by_artifact_identity()
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void Identity_rejects_blank_bundle_ids(string value)
     {
-        var first = new ExperienceIdentity(" bundle ", " 1.0.0 ", " sha256:abc ");
-        var second = new ExperienceIdentity("bundle", "1.0.0", "sha256:abc");
+        Assert.Throws<ArgumentException>(() =>
+            new ExperienceIdentity(value, "1.2.3", "sha256:0123456789abcdef"));
+    }
 
-        Assert.Equal("bundle", first.BundleId);
-        Assert.Equal("1.0.0", first.Version);
-        Assert.Equal("sha256:abc", first.ContentHash);
-        Assert.Equal(first, second);
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void Identity_rejects_blank_versions(string value)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new ExperienceIdentity("experience.demo", value, "sha256:0123456789abcdef"));
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    public void Identity_rejects_blank_content_hashes(string value)
+    {
+        Assert.Throws<ArgumentException>(() =>
+            new ExperienceIdentity("experience.demo", "1.2.3", value));
     }
 }
