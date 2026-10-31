@@ -20,6 +20,7 @@
     <ProjectReference Include="../MyVR.Core/MyVR.Core.csproj" />
     <PackageReference Include="Silk.NET.OpenXR" Version="2.23.0" />
     <PackageReference Include="Silk.NET.OpenXR.Extensions.KHR" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Vulkan" Version="2.23.0" />
   </ItemGroup>
 
   <ItemGroup>
