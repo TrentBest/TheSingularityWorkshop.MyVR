@@ -278,7 +278,7 @@ public sealed class MainActivity : Activity
             procedure => NativeLibrary.GetExport(_vulkanLibrary, procedure)));
 
         var getInstanceProcAddr = _vulkan.GetInstanceProcAddr(default, "vkGetInstanceProcAddr");
-        if (getInstanceProcAddr.Handle == 0)
+        if (getInstanceProcAddr == null)
         {
             throw new InvalidOperationException("vkGetInstanceProcAddr could not be resolved.");
         }
@@ -430,7 +430,7 @@ public sealed class MainActivity : Activity
         }
     }
 
-    private void ReleaseOpenXr()
+    private unsafe void ReleaseOpenXr()
     {
         if (_hasSession && _openXr is not null)
         {
