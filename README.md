@@ -1,4 +1,4 @@
-![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg)
+![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Visualize/development/docs/assets/moniker.svg)
 
 # TheSingularityWorkshop.MyVR
 
@@ -51,7 +51,9 @@ The first executable slice is a **headless, engine-neutral .NET 8 core**:
 
 - implemented: immutable Experience identity, a separate MyVR session identity, immutable capability snapshots, a device/runtime adapter boundary, and validated session lifecycle transitions;
 - simulated: capability reporting through a deterministic fake adapter in the test suite;
-- not yet implemented or verified: a concrete headset/runtime adapter, device deployment, spatial rendering, live tracking, or hardware input.
+- implemented but not yet verified on physical hardware: a standalone Quest 2 Android/OpenXR host bootstrap, including loader initialization, HMD discovery, runtime-selected Vulkan device creation, OpenXR session creation, and Android/OpenXR lifecycle handling;
+- not yet implemented: swapchain creation, frame submission, spatial rendering, live tracking, or controller/hand input;
+- not yet verified: runtime initialization and lifecycle behavior on a physical Quest headset.
 
 The core has no FSM_COS, FSM_UserIO, GUI, AnyApp, or VR SDK dependency. MyVR does not compose Experiences or own workflow execution.
 
@@ -68,6 +70,7 @@ This verifies the portable lifecycle and adapter contract; it does not verify a 
 ## 05 Documentation and theory
 
 - [Architecture](docs/ARCHITECTURE.md)
+- [Quest 2 Android host bootstrap and first-device test](docs/QUEST2_ANDROID_HOST_BOOTSTRAP.md)
 - [Experience Manifestation](docs/EXPERIENCE_MANIFESTATION.md)
 - [VR Boundary](docs/VR_BOUNDARY.md)
 - [AnyApp Companion](docs/ANYAPP_COMPANION.md)
