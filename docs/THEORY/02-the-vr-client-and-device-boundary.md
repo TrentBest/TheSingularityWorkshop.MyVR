@@ -92,7 +92,7 @@ Source-checked against PR #12 candidate head `d0f365f74b9e567151a6d5570d99fb62d2
 - [`DeviceCapabilities.cs`](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/blob/feature/myvr-device-session-core/src/MyVR.Core/DeviceCapabilities.cs) — immutable capability snapshot.
 - [`DeviceCapabilitiesTests.cs`](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/blob/feature/myvr-device-session-core/tests/MyVR.Core.Tests/DeviceCapabilitiesTests.cs) — deterministic fake adapter and snapshot behavior.
 
-No concrete device adapter exists in this candidate. There is no headset discovery, controller input, hand tracking, pose sampling, spatial rendering, or vendor API integration in the core.
+The headless core candidate documented here contains no concrete device adapter: there is no headset discovery, controller input, hand tracking, pose sampling, spatial rendering, or vendor API integration in `MyVR.Core`. A separate Quest 2 Android/OpenXR host is now developed in stacked PRs [#15](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/15) and [#16](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/16); it remains physically unverified and does not yet implement swapchain creation, frame submission, rendering, tracking, or controller/hand input.
 
 ## Evidence, limits, and poor-fit cases
 
