@@ -32,13 +32,17 @@ public sealed class MainActivity : Activity
 {
     private const string LogTag = "MyVR.Quest2";
     private const string AndroidCreateInstanceExtension = "XR_KHR_android_create_instance";
+    private const string VulkanEnable2Extension = "XR_KHR_vulkan_enable2";
     private TextView? _status;
     private XR? _openXr;
     private KhrLoaderInit? _loaderInit;
+    private KhrVulkanEnable2? _vulkanEnable2;
     private nint _openXrLibrary;
     private nint _javaVm;
     private Instance _instance;
     private ulong _systemId;
+    private ulong _vulkanMinApiVersion;
+    private ulong _vulkanMaxApiVersion;
     private bool _hasInstance;
 
     protected override void OnCreate(Bundle? savedInstanceState)
@@ -58,10 +62,14 @@ public sealed class MainActivity : Activity
             InitializeOpenXrLoader();
             CreateOpenXrInstanceAndFindHeadset();
             SetStatus(
-                $"OpenXR initialized. HMD system handle: 0x{_systemId:x}.\n\n" +
-                "Session creation, graphics binding, swapchain, frame submission, " +
+                $"OpenXR initialized. HMD system handle: 0x{_systemId:x}.\n" +
+                $"Vulkan API range: 0x{_vulkanMinApiVersion:x}–0x{_vulkanMaxApiVersion:x}.\n\n" +
+                "Vulkan device creation, session, swapchain, frame submission, " +
                 "Workshop moniker rendering, and controller input are not implemented yet.");
-            Log.Info(LogTag, $"OpenXR instance created and HMD system found: 0x{_systemId:x}.");
+            Log.Info(
+                LogTag,
+                $"OpenXR instance and HMD system ready. Vulkan API range: " +
+                $"0x{_vulkanMinApiVersion:x}–0x{_vulkanMaxApiVersion:x}.");
         }
         catch (Exception exception)
         {
@@ -151,15 +159,14 @@ public sealed class MainActivity : Activity
         EnsureSuccess(result, "xrEnumerateInstanceExtensionProperties(values)");
 
         var hasAndroidCreateInstance = false;
+        var hasVulkanEnable2 = false;
         for (var index = 0; index < extensions.Length; index++)
         {
             fixed (byte* extensionName = extensions[index].ExtensionName)
             {
-                if (Marshal.PtrToStringAnsi((nint)extensionName) == AndroidCreateInstanceExtension)
-                {
-                    hasAndroidCreateInstance = true;
-                    break;
-                }
+                var name = Marshal.PtrToStringAnsi((nint)extensionName);
+                hasAndroidCreateInstance |= name == AndroidCreateInstanceExtension;
+                hasVulkanEnable2 |= name == VulkanEnable2Extension;
             }
         }
 
@@ -167,6 +174,12 @@ public sealed class MainActivity : Activity
         {
             throw new NotSupportedException(
                 $"The active OpenXR runtime does not advertise {AndroidCreateInstanceExtension}.");
+        }
+
+        if (!hasVulkanEnable2)
+        {
+            throw new NotSupportedException(
+                $"The active OpenXR runtime does not advertise {VulkanEnable2Extension}.");
         }
 
         var applicationInfo = new XrApplicationInfo(
@@ -186,16 +199,19 @@ public sealed class MainActivity : Activity
             applicationVM: (void*)_javaVm,
             applicationActivity: (void*)Handle);
 
-        var extensionNameBytes = Encoding.UTF8.GetBytes(AndroidCreateInstanceExtension + "\0");
-        fixed (byte* extensionName = extensionNameBytes)
+        var androidExtensionBytes = Encoding.UTF8.GetBytes(AndroidCreateInstanceExtension + "\0");
+        var vulkanExtensionBytes = Encoding.UTF8.GetBytes(VulkanEnable2Extension + "\0");
+        fixed (byte* androidExtensionName = androidExtensionBytes)
+        fixed (byte* vulkanExtensionName = vulkanExtensionBytes)
         {
-            byte** enabledExtensions = stackalloc byte*[1];
-            enabledExtensions[0] = extensionName;
+            byte** enabledExtensions = stackalloc byte*[2];
+            enabledExtensions[0] = androidExtensionName;
+            enabledExtensions[1] = vulkanExtensionName;
 
             var createInfo = new InstanceCreateInfo(
                 next: &androidCreateInfo,
                 applicationInfo: applicationInfo,
-                enabledExtensionCount: 1,
+                enabledExtensionCount: 2,
                 enabledExtensionNames: enabledExtensions);
 
             result = _openXr.CreateInstance(&createInfo, ref _instance);
@@ -206,6 +222,23 @@ public sealed class MainActivity : Activity
         var systemGetInfo = new SystemGetInfo(formFactor: FormFactor.HeadMountedDisplay);
         result = _openXr.GetSystem(_instance, ref systemGetInfo, ref _systemId);
         EnsureSuccess(result, "xrGetSystem(HMD)");
+
+        _vulkanEnable2 = new KhrVulkanEnable2(new LamdaNativeContext(procedure =>
+        {
+            PfnVoidFunction function = default;
+            var procResult = _openXr.GetInstanceProcAddr(_instance, procedure, ref function);
+            return procResult == XrResult.Success ? (nint)function : 0;
+        }));
+
+        var graphicsRequirements = new GraphicsRequirementsVulkanKHR();
+        result = _vulkanEnable2.GetVulkanGraphicsRequirements2(
+            _instance,
+            _systemId,
+            ref graphicsRequirements);
+        EnsureSuccess(result, "xrGetVulkanGraphicsRequirements2KHR");
+
+        _vulkanMinApiVersion = graphicsRequirements.MinApiVersionSupported;
+        _vulkanMaxApiVersion = graphicsRequirements.MaxApiVersionSupported;
     }
 
     private static void EnsureSuccess(XrResult result, string operation)
@@ -230,6 +263,9 @@ public sealed class MainActivity : Activity
             _instance = default;
             _systemId = 0;
         }
+
+        _vulkanEnable2?.Dispose();
+        _vulkanEnable2 = null;
 
         _loaderInit?.Dispose();
         _loaderInit = null;
