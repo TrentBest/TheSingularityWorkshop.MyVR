@@ -49,13 +49,14 @@ table{border-collapse:collapse;width:100%;min-width:700px}th,td{text-align:right
 </div><p style="margin:16px 0 0"><button id="reset" type="button">Reset illustrative inputs</button></p></div>
 <div class="card"><div class="tag">Selected scenario output</div><h3 id="scenario-title">Base case · Month 12</h3><div class="stats" style="grid-template-columns:1fr 1fr">
 <div class="stat"><strong id="receipts">$0</strong><span>Workshop gross receipts / month</span></div>
+<div class="stat"><strong id="distributor">$0</strong><span>Distributor share / month</span></div>
 <div class="stat"><strong id="contribution">$0</strong><span>After variable + fixed costs</span></div>
 <div class="stat"><strong id="after">$0</strong><span>After reserve + optional owner pay</span></div>
 <div class="stat"><strong id="breakeven">—</strong><span>Venues to cover modeled costs</span></div>
 </div><p id="interpretation" class="muted">Adjust inputs to explore the economics.</p><p class="formula" id="equation"></p></div>
 </div>
 <div class="table-wrap"><table><thead><tr><th>Workshop fee on attributable base</th><th>Gross receipts / month</th><th>Contribution after costs</th><th>After reserve + owner pay</th></tr></thead><tbody id="rate-table"></tbody></table></div>
-<div class="table-wrap"><table><thead><tr><th>Adoption path</th><th>Active venues at selected month</th><th>Platform gross / month</th><th>Workshop receipts at selected fee</th><th>Contribution after costs</th></tr></thead><tbody id="scenario-table"></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Adoption path</th><th>Active venues at selected month</th><th>Attributable platform gross / month</th><th>Distributor share / month</th><th>Workshop receipts at selected fee</th><th>Contribution after costs</th></tr></thead><tbody id="scenario-table"></tbody></table></div>
 <p class="note" style="margin-top:16px">The 30% concept is shown only as a sensitivity test, not a recommendation or settled price. The earlier allocation idea—20 percentage points for overhead and 10 percentage points as a profit target—must be tested against real cost data. It is not guaranteed that a 20-point overhead allowance covers actual costs or that the remaining 10 points is net profit.</p>
 </div></section>
 
@@ -99,14 +100,14 @@ const curves={slow:{6:2,12:5,24:14},base:{6:5,12:12,24:35},fast:{6:12,12:35,24:1
 const labels={slow:'Slower validation',base:'Base case',fast:'Accelerated CiAi-enabled target'};
 let manual=false;
 function assumptions(){return {path:$('scenario').value,month:Number($('month').value),venues:num('venues'),base:num('base'),take:num('take')/100,partner:num('partner')/100,variable:num('variable'),fixed:num('fixed'),reserve:num('reserve')/100,owner:num('owner')};}
-function calc(a,rate=a.take,venues=a.venues){const gross=venues*a.base,receipts=gross*rate,variable=venues*a.variable,contribution=receipts-variable-a.fixed,reserve=receipts*a.reserve,after=contribution-reserve-a.owner,perVenue=a.base*rate-a.variable,breakEven=perVenue>0?Math.ceil(a.fixed/perVenue):null;return {gross,receipts,variable,contribution,reserve,after,breakEven};}
+function calc(a,rate=a.take,venues=a.venues){const gross=venues*a.base,receipts=gross*rate,distributor=gross*a.partner,variable=venues*a.variable,contribution=receipts-variable-a.fixed,reserve=receipts*a.reserve,after=contribution-reserve-a.owner,perVenue=a.base*rate-a.variable,breakEven=perVenue>0?Math.ceil(a.fixed/perVenue):null;return {gross,receipts,distributor,variable,contribution,reserve,after,breakEven};}
 function render(){const a=assumptions(),c=calc(a),fmt=n=>money(n);
 $('scenario-title').textContent=labels[a.path]+' · Month '+a.month;
-$('receipts').textContent=fmt(c.receipts);$('contribution').textContent=fmt(c.contribution);$('after').textContent=fmt(c.after);$('breakeven').textContent=c.breakEven===null?'Not reached':c.breakEven.toLocaleString();
+$('receipts').textContent=fmt(c.receipts);$('distributor').textContent=fmt(c.distributor);$('contribution').textContent=fmt(c.contribution);$('after').textContent=fmt(c.after);$('breakeven').textContent=c.breakEven===null?'Not reached':c.breakEven.toLocaleString();
 $('interpretation').textContent=c.contribution<0?'At these assumptions, recurring Workshop receipts do not cover modeled monthly costs. Reduce cost, increase attributable value/price, or validate a different route to market.':c.after<0?'Operating contribution is positive, but the selected reserve and optional owner compensation exceed what remains.':'The selected assumptions cover modeled costs and leave a positive amount after the reserve and optional owner compensation. Validate every input with actual operating data.';
 $('equation').textContent='Workshop receipts = venues × attributable platform gross per venue × fee rate. Contribution = receipts − venue-variable cost − fixed monthly cost.';
 const rates=[.01,.02,.03,.05,.30];$('rate-table').innerHTML=rates.map(r=>{const x=calc(a,r);return '<tr><td>'+Math.round(r*100)+'%</td><td>'+fmt(x.receipts)+'</td><td>'+fmt(x.contribution)+'</td><td>'+fmt(x.contribution-x.reserve-a.owner)+'</td></tr>'}).join('');
-$('scenario-table').innerHTML=Object.keys(curves).map(k=>{const v=curves[k][a.month],x=calc(a,a.take,v);return '<tr><td>'+labels[k]+'</td><td>'+v+'</td><td>'+fmt(x.gross)+'</td><td>'+fmt(x.receipts)+'</td><td>'+fmt(x.contribution)+'</td></tr>'}).join('');
+$('scenario-table').innerHTML=Object.keys(curves).map(k=>{const v=curves[k][a.month],x=calc(a,a.take,v);return '<tr><td>'+labels[k]+'</td><td>'+v+'</td><td>'+fmt(x.gross)+'</td><td>'+fmt(x.distributor)+'</td><td>'+fmt(x.receipts)+'</td><td>'+fmt(x.contribution)+'</td></tr>'}).join('');
 }
 $('scenario').addEventListener('change',()=>{if(!manual){$('venues').value=curves[$('scenario').value][Number($('month').value)]}render()});
 $('month').addEventListener('change',()=>{if(!manual){$('venues').value=curves[$('scenario').value][Number($('month').value)]}render()});
