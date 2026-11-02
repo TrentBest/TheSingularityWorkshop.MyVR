@@ -1,4 +1,4 @@
-[![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg)](https://trentbest.github.io/TheSingularityWorkshop.MyVR/)
+![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg)
 
 # TheSingularityWorkshop.MyVR
 
@@ -8,11 +8,11 @@ MyVR is a client specifically for VR-capable devices. It presents and interacts 
 
 ## Explore the business vision
 
-The [MyVR GitHub Pages site](https://trentbest.github.io/TheSingularityWorkshop.MyVR/) presents the broader vision: how the Workshop's technology could scale from an individual venue into a partner-led distribution network.
+The repository contains an initial static-site working draft that presents the broader vision: how the Workshop's technology could scale from an individual venue into a partner-led distribution network. The pages are source artifacts under review; **GitHub Pages deployment is not enabled**, and these links do not imply a live or deployed website.
 
-It also includes our [competitive landscape research](https://trentbest.github.io/TheSingularityWorkshop.MyVR/competition.html) and the developing business and pricing model. These pages are an invitation to examine the opportunity and help us test the assumptions—not a claim that the proposed distributor portal or commercial capabilities are already implemented.
+Explore the drafts directly: [MyVR home](index.html), [competitive landscape research](competition.html), [business model and scenario calculator](business-model.html), and [living vision](living-vision.html). They are invitations to examine the opportunity and test assumptions—not claims that the proposed distributor portal or commercial capabilities are already implemented.
 
-## Architecture
+## Capability arrangement
 
 ![MyVR capability arrangement](docs/assets/myvr-capability-arrangement.svg)
 
@@ -52,7 +52,7 @@ The architecture is intentionally engine-neutral. WebXR, native VR APIs, OpenXR,
 - [Roadmap](docs/ROADMAP.md)
 - [Implementation Notes](docs/IMPLEMENTATION_NOTES.md)
 
-Implementation begins after these boundaries are reviewed against the existing Workshop architecture.
+Implementation proceeds in staged increments against the existing Workshop architecture; the roadmap and implementation notes distinguish working core behavior, host experiments, and hardware-unverified capabilities.
 
 ---
 
