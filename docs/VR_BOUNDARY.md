@@ -63,13 +63,7 @@ The canonical Experience contract belongs to the Experiences ecosystem. MyVR mus
 
 The current Quest host has not yet established a swapchain, frame loop, spatial rendering, or live play-space tracking. Sphere visualization therefore remains planned, not implemented. Implement portable recommendation/geometry logic with deterministic tests first; add device presentation only after the frame pipeline and physical-device gates are proven.
 
-
 ---
 
-<p align="center">
-  <a href="https://github.com/TrentBest/TheSingularityWorkshop" aria-label="The Singularity Workshop">
-    <img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop" width="112" />
-  </a><br />
-  <strong>The Singularity Workshop</strong><br />
-  <em>If a picture is worth a thousand words, what is a living picture worth?</em>
-</p>
+<!-- THE SINGULARITY WORKSHOP FOOTER -->
+<p align="center"><img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop avatar" width="200" /></p>
