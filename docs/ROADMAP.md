@@ -6,7 +6,25 @@ Define MyVR as the VR manifestation/client and lock boundaries with Experience, 
 
 ## Phase 1 - Device Skeleton
 
-Establish the client project, detect VR/runtime capabilities, expose a minimal capability model, create a testable session state machine, and establish a semantic-to-VR boundary.
+**Status: In progress.**
+
+Implemented in the headless `.NET 8` core:
+
+- [x] Portable core project and deterministic test project.
+- [x] Immutable capability snapshot with adapter-owned capability names.
+- [x] Device/runtime adapter interface; fake adapter exercised by tests.
+- [x] Separate immutable Experience identity and MyVR session identity.
+- [x] Explicit session lifecycle with invalid-transition rejection, suspend/resume, disconnect, and reconnect tests.
+- [x] Pull-request and `development` build/test workflow.
+
+Still outstanding:
+
+- [ ] Select an actual headset/device deployment target and its supported runtime.
+- [ ] Implement and hardware-test a concrete device/runtime adapter.
+- [ ] Add a semantic input adapter after the FSM_UserIO dependency-policy gate is available and approved.
+- [ ] Verify the first real device lifecycle without making frame-critical work network-dependent.
+
+The current fake adapter proves only the contract and deterministic core behavior. It is not hardware detection.
 
 ## Phase 2 - Creator-defined Experience requirements
 
