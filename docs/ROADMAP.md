@@ -1,3 +1,5 @@
+![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Visualize/development/docs/assets/moniker.svg)
+
 # Roadmap
 
 ## Phase 0 - Theory
@@ -49,3 +51,16 @@ Additional runtimes, native/OpenXR implementations where appropriate, WebXR mani
 ## Non-goals
 
 MyVR is not Unity infrastructure, a second desktop host, a second composition OS, a repository server, a remote-control shell, a replacement for WebApp, or a requirement for every Experience.
+
+## Play-space boundary direction
+
+The default Experience boundary is an automatically generated sphere scaled from the Experience's recommended clearance radius. MyVR owns its device-local placement and presentation; the Experience owns the recommendation through the canonical Experiences contract. A player-drawn boundary is not part of the intended workflow.
+
+A later optional custom mode may use prescanned play-area geometry so an Experience can adapt its world to the available space. This does not replace the headset platform's system Guardian. See [issue #17](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/17) for staged acceptance criteria.
+
+This is architectural direction only. The current host has no spatial frame pipeline or live play-space tracking, so neither sphere visualization nor scanned-area capture is implemented.
+
+---
+
+<!-- THE SINGULARITY WORKSHOP FOOTER -->
+<p align="center"><img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop avatar" width="200" /></p>
