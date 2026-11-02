@@ -1,38 +1,39 @@
-name: Deploy MyVR preview to GitHub Pages
+name: Validate MyVR business site
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature/myvr-business-site
-  workflow_dispatch:
+      - development
+    paths:
+      - "index.html"
+      - "business-model.html"
+      - "competition.html"
+      - "living-vision.html"
+      - ".github/workflows/deploy-pages.yml"
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages-preview
+  group: myvr-business-site-validation-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  validate:
+    name: Validate static site files (no deployment)
     runs-on: ubuntu-latest
     steps:
-      - name: Check out website
+      - name: Check out pull request
         uses: actions/checkout@v4
 
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload static website
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-      - name: Deploy preview
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Verify required pages exist and are non-empty
+        shell: bash
+        run: |
+          set -euo pipefail
+          for page in index.html business-model.html competition.html living-vision.html; do
+            test -s "$page" || {
+              echo "::error::Required page is missing or empty: $page"
+              exit 1
+            }
+          done
+          echo "All required static site pages are present."
