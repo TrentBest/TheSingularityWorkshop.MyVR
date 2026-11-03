@@ -1,40 +1,41 @@
-[![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg)](https://trentbest.github.io/TheSingularityWorkshop.MyVR/)
+[![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg)](https://github.com/TrentBest/TheSingularityWorkshop)
 
 # TheSingularityWorkshop.MyVR
 
 **MyVR is the VR-device manifestation of The Singularity Workshop.**
 
-MyVR is a client specifically for VR-capable devices. It presents and interacts with Experiences without becoming the Experience runtime itself.
+MyVR is a client for presenting and interacting with Experiences through VR-capable devices. It does not own Experience semantics or become a second composition/runtime kernel.
 
 ## Architecture
 
 ![MyVR capability arrangement](docs/assets/myvr-capability-arrangement.svg)
 
-MyVR contributes immersive capabilities; the Experience decides whether those capabilities participate alone or alongside WebApp and AnyApp.
+**FSM_Foundry** is the shared execution/loading kernel. It owns common orchestration and execution lifecycle without knowing which host consumes it.
 
-## Architecture
+- **WebApp** — browser manifestation, discovery, distribution, and browser-native capabilities.
+- **AnyApp** — desktop manifestation, local services, persistence, artifact caching, and local delegated computation.
+- **MyVR** — VR-device manifestation, immersive presentation, spatial interaction, and device capabilities.
+- **ServerApp** — optional remote computation host, discovered through explicit capability offers; it is not another client manifestation.
 
-The Workshop separates Experience identity from manifestation:
+AnyApp, WebApp, and MyVR are peer client hosts. Each consumes shared kernel contracts and supplies its own runtime-specific composition, adapters, presentation, and lifecycle. ServerApp may provide bounded remote computation when explicitly offered and authorized. FSM_Foundry does not decide remote placement policy.
 
-- **WebApp** — browser reach, discovery, distribution, and browser APIs
-- **AnyApp** — desktop execution, local services, persistence, artifact caching, and delegated computation
-- **MyVR** — immersive VR presentation, spatial interaction, and device capabilities
+The canonical artifact identity is **BundleId + Version + ContentHash**. A MyVR session has its own session identity. Experience semantics and artifact identity remain with their canonical upstream contracts; MyVR owns only their VR manifestation and device-specific behavior.
 
-All three may participate in the same Experience without sharing the same renderer or runtime implementation.
+## Companion and standalone operation
 
-The canonical artifact identity is **BundleId + Version + ContentHash**. A VR session has its own session identity.
+MyVR must operate independently when the Experience requirements can be satisfied locally. AnyApp and ServerApp are optional collaborators, not mandatory dependencies. Delegation must be explicit, bounded, user-authorized, and non-frame-critical. No companion boundary grants remote shell or arbitrary process authority.
 
-## Companion model
+## VR engineering boundary
 
-MyVR can operate without AnyApp. When a companion is available, MyVR may delegate explicitly bounded, non-frame-critical work to it. The companion boundary is not a remote shell.
+MyVR owns device/runtime discovery, capability negotiation, Android/Quest and OpenXR lifecycle, frame timing and submission, tracking/input, spatial coordinate and play-space handling, VR presentation, haptics, and spatial audio. Those responsibilities must not migrate into FSM_Foundry or upstream portable contracts.
 
-## Technology boundary
+The architecture is engine-neutral. Runtime-specific APIs belong behind MyVR-owned adapters. Keep frame-critical work local to the headset; optimize allocations, memory traffic, scheduling, native interop, GPU synchronization, and latency without contaminating the portable computational substrate with VR assumptions.
 
-The architecture is intentionally engine-neutral. WebXR, native VR APIs, OpenXR, or device-specific adapters may be used behind the MyVR boundary as implementation choices.
+## Evidence discipline
 
-## Guiding principle
+A roadmap item is not an implemented capability. Track source implementation, automated tests, CI/package evidence, runtime integration evidence, and physical-headset verification separately. Android packaging or a successful CI build does not prove that a Quest device can initialize or run the host.
 
-> **MyVR is a window into an Experience, not the Experience itself.**
+The current host/session work and its physical-device gate are tracked in [issue #26](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/26). Do not add swapchain, frame-loop, rendering, or live-tracking work ahead of the documented physical bootstrap gate.
 
 ## Theory
 
@@ -46,15 +47,12 @@ The architecture is intentionally engine-neutral. WebXR, native VR APIs, OpenXR,
 - [Roadmap](docs/ROADMAP.md)
 - [Implementation Notes](docs/IMPLEMENTATION_NOTES.md)
 
-Implementation begins after these boundaries are reviewed against the existing Workshop architecture.
 
 ---
 
 <p align="center">
-  <a href="https://github.com/TrentBest/TheSingularityWorkshop" aria-label="The Singularity Workshop living avatar">
-    <img src="https://raw.githubusercontent.com/TrentBest/WebPage/development/TheSingularityWorkshop/wwwroot/Images/TheSingularityWorkshopLivingAvatar.svg" alt="The Singularity Workshop living avatar — a digital vortex converging on its central eye" width="112" />
-  </a><br />
+  <img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop" width="180" />
+  <br />
   <strong>The Singularity Workshop</strong><br />
-  <em>If a picture is worth a thousand words, what is a living picture worth?</em><br />
-  <a href="https://github.com/TrentBest">GitHub</a> · <a href="https://www.patreon.com/TheSingularityWorkshop">Support the Workshop</a>
+  <em>If a picture is worth a thousand words, what is a living picture worth?</em>
 </p>
