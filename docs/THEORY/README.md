@@ -3,7 +3,7 @@
 
 # MyVR Theory: A Learning Path
 
-MyVR is a VR-device host and manifestation of a Workshop Experience. This learning path starts with the identity of an Experience, derives the device/client boundary, explains session lifecycle, then follows the portable core, the Quest 2 host, and the shared execution architecture.
+MyVR is a VR-device host and manifestation of a Workshop Experience. This learning path starts with the identity of an Experience, derives the device/client boundary, explains session lifecycle, then follows the portable core, the Quest 2 host, the shared execution architecture, and the full VR responsibility map.
 
 These chapters explain **MyVR-owned theory**. They do not replace the theory or contracts owned by neighboring Workshop repositories.
 
@@ -31,6 +31,10 @@ Read [The Quest 2 Android Host Bootstrap](05-quest2-android-host-bootstrap.md). 
 
 Read [MyVR as a Peer Host of the Shared Runtime](06-myvr-as-a-peer-host.md). Understand the intended manifest → FSM_COS → RuntimeAssembly → FSM_Foundry → MyVR presentation flow, and why MyVR must not duplicate composition or workflow execution.
 
+## 07 Domain map — responsibilities, evidence, and implementation order
+
+Read [The MyVR Domain: Responsibilities, Evidence, and Gates](07-myvr-domain-implementation-map.md). Map each VR responsibility to its current source evidence, owner, implementation gap, and prerequisite. Use the physical-device gate to determine when it is safe to advance from session bootstrap into frame and spatial work.
+
 ## Reuse and further reading
 
 - [Architecture](../ARCHITECTURE.md) — the Workshop-wide manifestation arrangement and ownership boundaries.
@@ -52,14 +56,15 @@ The current repository has two separate candidate layers:
 - **Portable core:** .NET 8 identity, capability snapshots, adapter boundary, and deterministic session lifecycle tests.
 - **Quest host:** a separate .NET 10 Android ARM64 application with OpenXR/Vulkan session bootstrap and Android lifecycle handling.
 
-The Quest host candidate is [draft PR #16](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/16), head `8c0dd80f9a51ab90fac034c435ed15134cdce949`. Its [core CI run](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41227205130) and [Android build/package run](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41227205152) succeeded for that exact head. The PR remains draft and unmerged; its branch ancestry still requires reconciliation with the declared OpenXR-spike base before it can be treated as integration-ready.
+The Quest host candidate is [draft PR #16](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/16). The PR's CI evidence and exact candidate head are recorded in that PR. The PR remains draft and unmerged; its branch ancestry must be reconciled with its declared OpenXR-spike base before it can be treated as integration-ready.
 
 - **Source-implemented:** portable core contracts and the Android/OpenXR/Vulkan bootstrap described in Chapter 5.
-- **CI-verified:** build/test and signed ARM64 APK packaging checks for the exact PR #16 head.
+- **CI-verified:** only the build, test, and Android package checks explicitly recorded against an exact commit in PR #16.
 - **Conceptual / not integrated:** the shared manifest → FSM_COS → RuntimeAssembly → FSM_Foundry → MyVR host handoff described in Chapter 6.
+- **Not implemented in the current host candidate:** swapchain, frame loop, frame submission, spatial rendering, live tracking, and controller/hand input.
 - **Not hardware-verified:** no physical Quest 2 runtime initialization, lifecycle, rendering, tracking, or input evidence has been recorded.
 
-A diagram, passing headless test, or successful APK package does not upgrade a conceptual or hardware-unverified capability to implemented or verified.
+A diagram, passing headless test, or successful APK package does not upgrade a conceptual or hardware-unverified capability to implemented or verified. Chapter 7 provides the responsibility-by-responsibility evidence vocabulary and implementation gates.
 
 ---
 
