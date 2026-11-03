@@ -70,6 +70,16 @@ Use these terms consistently:
 
 These are separate dimensions, not a ladder where one automatically implies the next. A CI-built APK is not proof of a running OpenXR session. A simulated capability snapshot is not proof of headset capability. A passing core test is not proof of frame timing or input on device.
 
+### The RuntimeAssembly handoff is a real integration gap
+
+The upstream contracts have now been checked against their current development documentation and the owning Foundry integration issue:
+
+- FSM_COS accepts a runtime manifest and catalog, resolves the requested MicroBundles and dependency closure, performs bounded arbitration, and returns a `RuntimeAssembly`. That result represents successful composition; it is not an application execution lifecycle.
+- FSM_Foundry's current documented sequential runner accepts a `WorkflowDefinition` and bounded `WorkflowExecutionContext`, then invokes host-registered named handlers. It owns workflow validation, execution ordering, cancellation, lifecycle, and structured outcomes.
+- The two shapes are not interchangeable. The current Foundry contract does not yet accept or execute an FSM_COS `RuntimeAssembly`; the typed handoff is tracked by [FSM_Foundry #23](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Foundry/issues/23).
+
+Therefore MyVR must not flatten bundle semantics into arbitrary workflow JSON, hand-wire a second execution loop, or claim that the target arrow above is integrated. The next valid step is an agreed typed handoff in the shared Foundry/COS boundary, with deterministic integration tests for cancellation, failure, and cleanup. MyVR then supplies a VR host adapter and presentation; it does not own that handoff's execution semantics. See [MyVR #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27).
+
 ## 04 See it in a minute — trace the existing portable core
 
 The current portable core can be inspected without a headset:
