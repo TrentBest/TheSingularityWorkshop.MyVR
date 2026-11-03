@@ -3,7 +3,7 @@
 
 # MyVR Theory: A Learning Path
 
-MyVR is a client that gives an Experience an immersive manifestation. This learning path teaches the problem from the user's point of view, develops the device/client model, follows a session through its lifecycle, and then traces the current implementation.
+MyVR is a VR-device host and manifestation of a Workshop Experience. This learning path starts with the identity of an Experience, derives the device/client boundary, explains session lifecycle, then follows the portable core, the Quest 2 host, and the shared execution architecture.
 
 These chapters explain **MyVR-owned theory**. They do not replace the theory or contracts owned by neighboring Workshop repositories.
 
@@ -13,7 +13,7 @@ Start with [An Experience, Many Manifestations](01-experience-and-manifestation.
 
 ## 02 Why — a client boundary, not another runtime
 
-Continue with [The VR Client and Its Device Boundary](02-the-vr-client-and-device-boundary.md). Understand why device capabilities are constraints on a manifestation, why the headset is not the Experience, and why frame-critical work stays local.
+Continue with [The VR Client and Its Device Boundary](02-the-vr-client-and-device-boundary.md). Understand why device capabilities constrain a manifestation, why the headset is not the Experience, and why frame-critical work stays local.
 
 ## 03 How — the session model
 
@@ -21,9 +21,17 @@ Read [Sessions, Identity, and Lifecycle](03-sessions-identity-and-lifecycle.md).
 
 ## 04 See it in a minute — one bounded flow
 
-Use [A Headless Session Walkthrough](04-headless-session-walkthrough.md) for a small end-to-end example grounded in the current headless core candidate. It is source-checked against the candidate implementation and tests; it is not a headset demo.
+Use [A Headless Session Walkthrough](04-headless-session-walkthrough.md) to run and test the portable .NET core. It is deliberately hardware-free and does not claim to prove a device runtime.
 
-## 05 Choose your next step
+## 05 Device host — from Android Activity to OpenXR session
+
+Read [The Quest 2 Android Host Bootstrap](05-quest2-android-host-bootstrap.md). Trace loader initialization, extension checks, HMD system selection, runtime-selected Vulkan device creation, OpenXR session creation, Android lifecycle coordination, and the physical-device evidence gate.
+
+## 06 Ecosystem integration — a peer host of Foundry
+
+Read [MyVR as a Peer Host of the Shared Runtime](06-myvr-as-a-peer-host.md). Understand the intended manifest → FSM_COS → RuntimeAssembly → FSM_Foundry → MyVR presentation flow, and why MyVR must not duplicate composition or workflow execution.
+
+## Reuse and further reading
 
 - [Architecture](../ARCHITECTURE.md) — the Workshop-wide manifestation arrangement and ownership boundaries.
 - [Experience Manifestation](../EXPERIENCE_MANIFESTATION.md) — creator-owned requirements and simultaneous clients.
@@ -35,18 +43,23 @@ Use [A Headless Session Walkthrough](04-headless-session-walkthrough.md) for a s
 
 ## How to read and reuse these chapters
 
-The chapters are modular. An instructor can reorder them, assign one chapter independently, or use the review questions and exercises as seminar prompts. Each chapter distinguishes conceptual architecture from implemented behavior and links to the exact source/tests used for implementation claims.
+The chapters are modular. An instructor can reorder them, assign one chapter independently, or use the review questions and exercises as seminar prompts. Each chapter distinguishes conceptual architecture from implemented behavior and links to the source, tests, CI evidence, and open work that support its claims.
 
 ## Evidence and status
 
-The executable core described here is proposed in [PR #12](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/12), candidate head `d0f365f74b9e567151a6d5570d99fb62d2391b75`. That candidate contains the `.NET 8` headless core and deterministic tests. Its GitHub Actions runs report a successful Release build and 13 passing tests. The PR is still a draft and is not merged into `development`.
+The current repository has two separate candidate layers:
 
-- **Source-checked:** public types and tests linked from the candidate branch.
-- **CI-verified:** the candidate SHA above was built and tested by GitHub Actions.
-- **Conceptual:** multi-manifestation coordination, semantic input translation, real device discovery, spatial presentation, and runtime integration remain architectural direction unless explicitly implemented elsewhere.
-- **Not verified:** no headset, controller, hand-tracking system, WebXR session, OpenXR runtime, or vendor runtime was exercised.
+- **Portable core:** .NET 8 identity, capability snapshots, adapter boundary, and deterministic session lifecycle tests.
+- **Quest host:** a separate .NET 10 Android ARM64 application with OpenXR/Vulkan session bootstrap and Android lifecycle handling.
 
-This theory path must be updated when the implementation changes. A claim is not upgraded from conceptual to implemented merely because it appears in a diagram or roadmap.
+The Quest host candidate is [draft PR #16](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/16), head `8c0dd80f9a51ab90fac034c435ed15134cdce949`. Its [core CI run](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41227205130) and [Android build/package run](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41227205152) succeeded for that exact head. The PR remains draft and unmerged; its branch ancestry still requires reconciliation with the declared OpenXR-spike base before it can be treated as integration-ready.
+
+- **Source-implemented:** portable core contracts and the Android/OpenXR/Vulkan bootstrap described in Chapter 5.
+- **CI-verified:** build/test and signed ARM64 APK packaging checks for the exact PR #16 head.
+- **Conceptual / not integrated:** the shared manifest → FSM_COS → RuntimeAssembly → FSM_Foundry → MyVR host handoff described in Chapter 6.
+- **Not hardware-verified:** no physical Quest 2 runtime initialization, lifecycle, rendering, tracking, or input evidence has been recorded.
+
+A diagram, passing headless test, or successful APK package does not upgrade a conceptual or hardware-unverified capability to implemented or verified.
 
 ---
 
