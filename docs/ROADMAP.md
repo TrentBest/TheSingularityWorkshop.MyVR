@@ -1,51 +1,52 @@
+[![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg)](https://github.com/TrentBest/TheSingularityWorkshop)
+
 # Roadmap
 
-## Phase 0 - Theory
+This roadmap describes ordered work, not proof of implementation. Use [issue #26](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/26) as the active shared-kernel and VR-domain coordination record.
 
-Define MyVR as the VR manifestation/client and lock boundaries with Experience, AnyApp, WebApp, GUI, and FSM_COS.
+## Phase 0 — Architecture and shared host contract
 
-## Phase 1 - Device Skeleton
+Define MyVR as a peer client host consuming FSM_Foundry. Confirm the concrete host contract with FSM_Foundry #20 and AnyApp #45. Keep FSM_Foundry consumer-agnostic; keep Experience semantics and artifact identity upstream; keep optional ServerApp remote-compute policy outside Foundry.
 
-Establish the client project, detect VR/runtime capabilities, expose a minimal capability model, create a testable session state machine, and establish a semantic-to-VR boundary.
+## Phase 1 — Portable device/session boundary
 
-## Phase 2 - Creator-defined Experience requirements
+Establish the device-independent MyVR core, capability model, immutable Experience/session identity boundaries, and deterministic session lifecycle tests. Keep the core free of headset SDK dependencies and shared-kernel implementation details.
 
-Resolve an immutable published Experience identity and its declared capability requirements.
+## Phase 2 — Quest/Android host bootstrap
 
-Determine whether the current VR device can satisfy the required immersive and interaction capabilities locally, and identify optional/delegable work that may be supplied by WebApp and/or AnyApp.
+Establish Android application lifecycle, OpenXR loader/instance/system initialization, runtime-selected graphics-device integration, and OpenXR session lifecycle. Record CI/package evidence separately from runtime and physical-device evidence.
 
-A requirement failure is an Experience capability mismatch, not a reason to redefine MyVR's architectural role.
+**Physical-device gate:** verify the bootstrap on the target Quest headset before proceeding to swapchain, frame loop, frame submission, or rendering work. A successful build/package is not a substitute for this gate.
 
-## Phase 3 - First Experience
+## Phase 3 — First standalone Experience
 
-Load the permitted representation, present a minimal spatial environment, and support one bounded interaction.
+The first installed product is the Workshop Moniker Experience. Resolve its canonical published identity and requirements, negotiate the local VR capabilities, enter its permitted representation, and support one bounded interaction. It must work locally without AnyApp or ServerApp when its requirements permit.
 
-The first Experience should explicitly demonstrate at least one requirement that can be satisfied by MyVR alone.
+## Phase 4 — Frame and spatial pipeline
 
-## Phase 4 - Companion
+After the physical bootstrap gate passes, implement frame timing, swapchain lifecycle, submission/recovery, tracking validity, coordinate frames, play-space boundaries, spatial presentation, and controller/hand interaction. Keep all headset-specific APIs behind MyVR adapters.
 
-Connect MyVR to AnyApp when the Experience requires or benefits from desktop capabilities, exchange capabilities, synchronize Experience/session identity, heartbeat and reconnect, and delegate one non-frame-critical operation.
+## Phase 5 — Optional collaborators
 
-AnyApp remains independently usable without MyVR.
+Integrate AnyApp as a peer desktop host/optional companion and ServerApp as an optional remote computation host. Exchange explicit capability offers and delegate only bounded, user-authorized, non-frame-critical work. Add WebApp coordination when an Experience declares browser-native requirements.
 
-## Phase 5 - WebApp + MyVR
+## Phase 6 — Co-entangled manifestations
 
-Coordinate browser and VR manifestations when an Experience requires browser capabilities, browser computation, distribution, or other WebApp-native capabilities that are not available locally on the VR device.
+Demonstrate an Experience coordinating WebApp, AnyApp, and MyVR, with optional ServerApp assistance where appropriate. Preserve a single canonical Experience identity and bounded semantic events across manifestations.
 
-## Phase 6 - Co-entangled Manifestations
+## Phase 7 — Device expansion and optimization
 
-WebApp <-> AnyApp <-> MyVR coordinated session, manifestation handoff, shared bounded Experience events, and capability-aware behavior.
-
-Demonstrate an Experience that intentionally uses all three manifestations simultaneously.
-
-## Phase 7 - Spatial Experience
-
-Observer/camera model, spatial layout, detail horizon, interaction horizon, controller/hand interaction, and appropriate audio/haptic affordances.
-
-## Phase 8 - Device Expansion
-
-Additional runtimes, native/OpenXR implementations where appropriate, WebXR manifestation where appropriate, and device-specific optimization behind adapters.
+Add additional runtimes and devices behind adapters. Optimize the headset hot path for predictable frame times, allocation pressure, memory traffic, native interop, GPU synchronization, and latency without weakening the portability of shared computational foundations.
 
 ## Non-goals
 
 MyVR is not Unity infrastructure, a second desktop host, a second composition OS, a repository server, a remote-control shell, a replacement for WebApp, or a requirement for every Experience.
+
+---
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop" width="180" />
+  <br />
+  <strong>The Singularity Workshop</strong><br />
+  <em>If a picture is worth a thousand words, what is a living picture worth?</em>
+</p>
