@@ -118,6 +118,7 @@ public sealed class TacticalCommandWorkflowTests
             TacticalIntent intent, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            _intentId = intent.IntentId;
             return ValueTask.FromResult(new TacticalPlanProposal(
                 Guid.NewGuid(), intent.IntentId, "Deterministic two-route proposal.",
                 new[]
@@ -151,13 +152,5 @@ public sealed class TacticalCommandWorkflowTests
         }
 
         private Guid _intentId;
-
-        // Capture the correlation ID returned by the proposal for subsequent fake execution snapshots.
-        public ValueTask<TacticalPlanProposal> ProposeAndCaptureAsync(
-            TacticalIntent intent, CancellationToken cancellationToken = default)
-        {
-            _intentId = intent.IntentId;
-            return ProposeAsync(intent, cancellationToken);
-        }
     }
 }
