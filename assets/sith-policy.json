@@ -15,14 +15,15 @@
     "feature/myvr-device-session-core",
     "feature/myvr-fsm-foundry-reference-migration",
     "feature/myvr-tactical-command-facade",
+    "feature/myvr-tactical-command-workflow",
     "feature/quest2-android-host-bootstrap",
     "feature/quest2-openxr-host-spike",
     "feature/quest2-session-lifecycle-bridge",
     "master"
   ],
-  "branch_count": 13,
+  "branch_count": 14,
   "status": "NON-COMPLIANT",
-  "evaluated_at": "2026-11-06T12:04:31Z",
-  "workflow_run": "https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/42214879095",
-  "triggering_commit": "7cfd9e3e6a129105863f72de00b451193656b5ab"
+  "evaluated_at": "2026-11-07T11:02:08Z",
+  "workflow_run": "https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/42366435743",
+  "triggering_commit": "648a622329826ae3eeb731979041d7fc0a89d803"
 }
