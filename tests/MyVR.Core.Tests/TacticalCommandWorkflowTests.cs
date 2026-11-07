@@ -110,6 +110,7 @@ public sealed class TacticalCommandWorkflowTests
     private sealed class DeterministicTacticalAdapter : ITacticalCommandAdapter
     {
         private readonly Guid _executionId = Guid.NewGuid();
+        private Guid _intentId;
 
         public TacticalPlanResponse? LastResponse { get; private set; }
         public int ResponseCount { get; private set; }
@@ -138,7 +139,7 @@ public sealed class TacticalCommandWorkflowTests
             LastResponse = response;
             ResponseCount++;
             return ValueTask.FromResult(new TacticalExecutionSnapshot(
-                _executionId, Guid.Empty, TacticalExecutionState.Executing, "Fake execution started."));
+                _executionId, _intentId, TacticalExecutionState.Executing, "Fake execution started."));
         }
 
         public ValueTask<TacticalExecutionSnapshot> CancelAsync(
@@ -150,7 +151,5 @@ public sealed class TacticalCommandWorkflowTests
             return ValueTask.FromResult(new TacticalExecutionSnapshot(
                 _executionId, _intentId, TacticalExecutionState.Cancelled, "Fake execution cancelled."));
         }
-
-        private Guid _intentId;
     }
 }
