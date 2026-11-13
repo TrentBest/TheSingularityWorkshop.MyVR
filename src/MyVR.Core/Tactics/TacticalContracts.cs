@@ -153,11 +153,16 @@ public enum TacticalExecutionState
     Degraded
 }
 
+/// <summary>
+/// A revisioned view of one bot-owned execution. Revisions increase monotonically for each update.
+/// The initial execution snapshot starts at revision zero.
+/// </summary>
 public sealed record TacticalExecutionSnapshot(
     Guid ExecutionId,
     Guid IntentId,
     TacticalExecutionState State,
-    string? Message = null);
+    string? Message = null,
+    long Revision = 0);
 
 /// <summary>Attributable event for future learning; this contract does not train or mutate a bot.</summary>
 public sealed record TacticalLearningEvent(
