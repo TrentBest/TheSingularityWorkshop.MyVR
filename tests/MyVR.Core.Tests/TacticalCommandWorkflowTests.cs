@@ -63,9 +63,9 @@ public sealed class TacticalCommandWorkflowTests
         var started = await workflow.RespondAsync(new TacticalPlanResponse(
             proposal.Proposal.ProposalId, TacticalPlanDecision.Approve));
 
-        var ready = await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
+        await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
             started.Execution!.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Ready, "Both groups ready.", 1));
-        var executing = await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
+        await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
             started.Execution.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Executing, "Maneuver released.", 2));
         var completed = await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
             started.Execution.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Completed, "Objective reached.", 3));
