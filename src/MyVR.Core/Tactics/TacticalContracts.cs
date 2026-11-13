@@ -1,11 +1,19 @@
 namespace TheSingularityWorkshop.MyVR.Tactics;
 
+/// <summary>Player-level objective. Values are semantic and contain no game-protocol concepts.</summary>
 public enum TacticalIntentKind
 {
-    FlankLeft, FlankRight, SplitIntoGroups, AttackPosition,
-    SynchronizedAttack, Hold, Regroup, FallBack
+    FlankLeft,
+    FlankRight,
+    SplitIntoGroups,
+    AttackPosition,
+    SynchronizedAttack,
+    Hold,
+    Regroup,
+    FallBack
 }
 
+/// <summary>A spatial target selected by the client, expressed in a named coordinate frame.</summary>
 public sealed record TacticalTarget
 {
     public string TargetId { get; }
@@ -20,7 +28,9 @@ public sealed record TacticalTarget
         CoordinateFrameId = Require(coordinateFrameId, nameof(coordinateFrameId));
         if (!double.IsFinite(x) || !double.IsFinite(y) || !double.IsFinite(z))
             throw new ArgumentOutOfRangeException(nameof(x), "Target coordinates must be finite.");
-        X = x; Y = y; Z = z;
+        X = x;
+        Y = y;
+        Z = z;
     }
 
     private static string Require(string value, string name)
@@ -30,6 +40,7 @@ public sealed record TacticalTarget
     }
 }
 
+/// <summary>Player intent, kept distinct from any bot-authored execution plan.</summary>
 public sealed record TacticalIntent
 {
     public Guid IntentId { get; }
@@ -38,8 +49,12 @@ public sealed record TacticalIntent
     public int? RequestedGroupCount { get; }
     public DateTimeOffset IssuedAt { get; }
 
-    public TacticalIntent(TacticalIntentKind kind, TacticalTarget? target = null,
-        int? requestedGroupCount = null, Guid? intentId = null, DateTimeOffset? issuedAt = null)
+    public TacticalIntent(
+        TacticalIntentKind kind,
+        TacticalTarget? target = null,
+        int? requestedGroupCount = null,
+        Guid? intentId = null,
+        DateTimeOffset? issuedAt = null)
     {
         if (!Enum.IsDefined(kind)) throw new ArgumentOutOfRangeException(nameof(kind));
         if (requestedGroupCount is <= 0) throw new ArgumentOutOfRangeException(nameof(requestedGroupCount));
@@ -47,13 +62,17 @@ public sealed record TacticalIntent
             throw new ArgumentException("This intent requires a spatial target.", nameof(target));
         if (kind == TacticalIntentKind.SplitIntoGroups && requestedGroupCount is null)
             throw new ArgumentException("Splitting requires a requested group count.", nameof(requestedGroupCount));
+
         IntentId = intentId ?? Guid.NewGuid();
         if (IntentId == Guid.Empty) throw new ArgumentException("Intent ID must not be empty.", nameof(intentId));
-        Kind = kind; Target = target; RequestedGroupCount = requestedGroupCount;
+        Kind = kind;
+        Target = target;
+        RequestedGroupCount = requestedGroupCount;
         IssuedAt = issuedAt ?? DateTimeOffset.UtcNow;
     }
 }
 
+/// <summary>Bot-proposed group role and route summary; game-specific units remain bot-owned.</summary>
 public sealed record TacticalGroupPlan(string GroupId, string Role, string RouteSummary)
 {
     public string GroupId { get; } = Require(GroupId, nameof(GroupId));
@@ -67,6 +86,7 @@ public sealed record TacticalGroupPlan(string GroupId, string Role, string Route
     }
 }
 
+/// <summary>Explicit synchronization semantics for coordinated multi-group execution.</summary>
 public sealed record TacticalSynchronization
 {
     public TacticalSynchronizationKind Kind { get; }
@@ -76,14 +96,25 @@ public sealed record TacticalSynchronization
     {
         if (!Enum.IsDefined(kind)) throw new ArgumentOutOfRangeException(nameof(kind));
         if (arrivalTolerance < TimeSpan.Zero) throw new ArgumentOutOfRangeException(nameof(arrivalTolerance));
-        Kind = kind; ArrivalTolerance = arrivalTolerance;
+        Kind = kind;
+        ArrivalTolerance = arrivalTolerance;
     }
 }
 
-public enum TacticalSynchronizationKind { None, SharedRelease, CoordinatedArrival }
+public enum TacticalSynchronizationKind
+{
+    None,
+    SharedRelease,
+    CoordinatedArrival
+}
 
-public sealed record TacticalPlanProposal(Guid ProposalId, Guid IntentId, string Summary,
-    IReadOnlyList<TacticalGroupPlan> Groups, TacticalSynchronization? Synchronization = null)
+/// <summary>A bot's proposed plan. It is not executable until the player approves it.</summary>
+public sealed record TacticalPlanProposal(
+    Guid ProposalId,
+    Guid IntentId,
+    string Summary,
+    IReadOnlyList<TacticalGroupPlan> Groups,
+    TacticalSynchronization? Synchronization = null)
 {
     public void Validate()
     {
@@ -97,23 +128,47 @@ public sealed record TacticalPlanProposal(Guid ProposalId, Guid IntentId, string
     }
 }
 
-public enum TacticalPlanDecision { Approve, Modify, Reject }
+public enum TacticalPlanDecision
+{
+    Approve,
+    Modify,
+    Reject
+}
 
-public sealed record TacticalPlanResponse(Guid ProposalId, TacticalPlanDecision Decision,
+/// <summary>Player decision and optional replacement proposal content.</summary>
+public sealed record TacticalPlanResponse(
+    Guid ProposalId,
+    TacticalPlanDecision Decision,
     IReadOnlyList<TacticalGroupPlan>? ModifiedGroups = null);
 
 public enum TacticalExecutionState
 {
-    Accepted, Staging, Ready, Executing, Completed, Failed, Cancelled, Degraded
+    Accepted,
+    Staging,
+    Ready,
+    Executing,
+    Completed,
+    Failed,
+    Cancelled,
+    Degraded
 }
 
 /// <summary>
-/// Revision is monotonic within an execution. The initial adapter response starts at revision zero;
-/// every subsequent progress or terminal update must carry a strictly greater revision.
+/// A revisioned view of one bot-owned execution. Revisions increase monotonically for each update.
+/// The initial execution snapshot starts at revision zero.
 /// </summary>
-public sealed record TacticalExecutionSnapshot(Guid ExecutionId, Guid IntentId,
-    TacticalExecutionState State, string? Message = null, long Revision = 0);
+public sealed record TacticalExecutionSnapshot(
+    Guid ExecutionId,
+    Guid IntentId,
+    TacticalExecutionState State,
+    string? Message = null,
+    long Revision = 0);
 
 /// <summary>Attributable event for future learning; this contract does not train or mutate a bot.</summary>
-public sealed record TacticalLearningEvent(Guid EventId, Guid IntentId, string EventType,
-    DateTimeOffset OccurredAt, string Actor, string? Details = null);
+public sealed record TacticalLearningEvent(
+    Guid EventId,
+    Guid IntentId,
+    string EventType,
+    DateTimeOffset OccurredAt,
+    string Actor,
+    string? Details = null);
