@@ -110,7 +110,7 @@ public sealed class TacticalCommandWorkflowTests
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await workflow.ObserveExecutionAsync(
             new TacticalExecutionSnapshot(current.ExecutionId, current.IntentId, TacticalExecutionState.Staging, Revision: 0)));
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await workflow.ObserveExecutionAsync(
-            new TacticalExecutionSnapshot(current.ExecutionId, current.IntentId, TacticalExecutionState.Completed, Revision: 1)));
+            new TacticalExecutionSnapshot(current.ExecutionId, current.IntentId, TacticalExecutionState.Ready, Revision: 1)));
     }
 
     [Fact]
