@@ -23,6 +23,10 @@ public sealed class TacticalCommandWorkflowTests
         var result = await workflow.RespondAsync(
             new TacticalPlanResponse(proposed.Proposal.ProposalId, TacticalPlanDecision.Approve));
         Assert.Equal(TacticalPlanDecision.Approve, result.Decision);
+        Assert.Equal(TacticalExecutionState.Staging, result.Execution!.State);
+        result = await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
+            result.Execution.ExecutionId, result.Intent.IntentId, TacticalExecutionState.Executing,
+            "Maneuver released.", 1));
         Assert.Equal(TacticalExecutionState.Executing, result.Execution!.State);
         Assert.Contains(result.LearningEvents, item => item.EventType == "plan.approve" && item.Actor == "player");
         Assert.Contains(result.LearningEvents, item => item.EventType == "execution.executing" && item.Actor == "adapter");
@@ -59,21 +63,19 @@ public sealed class TacticalCommandWorkflowTests
         var started = await workflow.RespondAsync(new TacticalPlanResponse(
             proposal.Proposal.ProposalId, TacticalPlanDecision.Approve));
 
-        var staging = await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
-            started.Execution!.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Staging, "Groups assembling.", 1));
         var ready = await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
-            started.Execution.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Ready, "Both groups ready.", 2));
+            started.Execution!.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Ready, "Both groups ready.", 1));
         var executing = await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
-            started.Execution.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Executing, "Maneuver released.", 3));
+            started.Execution.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Executing, "Maneuver released.", 2));
         var completed = await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
-            started.Execution.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Completed, "Objective reached.", 4));
+            started.Execution.ExecutionId, started.Intent.IntentId, TacticalExecutionState.Completed, "Objective reached.", 3));
 
         Assert.Equal(TacticalExecutionState.Completed, completed.Execution!.State);
-        Assert.Equal(new[] { "execution.executing", "execution.staging", "execution.ready",
+        Assert.Equal(new[] { "execution.staging", "execution.ready",
             "execution.executing", "execution.completed" },
             completed.LearningEvents.Where(e => e.EventType.StartsWith("execution.", StringComparison.Ordinal))
                 .Select(e => e.EventType));
-        Assert.Equal(4, completed.Execution.Revision);
+        Assert.Equal(3, completed.Execution.Revision);
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
             await workflow.ObserveExecutionAsync(new TacticalExecutionSnapshot(
                 completed.Execution.ExecutionId, completed.Intent.IntentId, TacticalExecutionState.Failed, "Late failure", 5)));
@@ -110,7 +112,7 @@ public sealed class TacticalCommandWorkflowTests
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await workflow.ObserveExecutionAsync(
             new TacticalExecutionSnapshot(current.ExecutionId, current.IntentId, TacticalExecutionState.Staging, Revision: 0)));
         await Assert.ThrowsAsync<InvalidOperationException>(async () => await workflow.ObserveExecutionAsync(
-            new TacticalExecutionSnapshot(current.ExecutionId, current.IntentId, TacticalExecutionState.Ready, Revision: 1)));
+            new TacticalExecutionSnapshot(current.ExecutionId, current.IntentId, TacticalExecutionState.Completed, Revision: 1)));
     }
 
     [Fact]
@@ -175,7 +177,7 @@ public sealed class TacticalCommandWorkflowTests
             LastResponse = response;
             ResponseCount++;
             return ValueTask.FromResult(new TacticalExecutionSnapshot(_executionId, _intentId,
-                TacticalExecutionState.Executing, "Fake execution started."));
+                TacticalExecutionState.Staging, "Fake execution accepted for staging."));
         }
 
         public ValueTask<TacticalExecutionSnapshot> CancelAsync(Guid executionId,
