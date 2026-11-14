@@ -12,6 +12,7 @@
     "docs/myvr-theory-learning-path",
     "feature/experience-scaled-clearance-boundary",
     "feature/myvr-business-site",
+    "feature/myvr-core-session",
     "feature/myvr-device-session-core",
     "feature/myvr-fsm-foundry-reference-migration",
     "feature/myvr-tactical-command-facade",
@@ -22,9 +23,9 @@
     "feature/quest2-session-lifecycle-bridge",
     "master"
   ],
-  "branch_count": 15,
+  "branch_count": 16,
   "status": "NON-COMPLIANT",
-  "evaluated_at": "2026-11-13T12:10:13Z",
-  "workflow_run": "https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/43422888064",
-  "triggering_commit": "92407b6a68e1bf1422ff86ce1ec6fe6e97424ca1"
+  "evaluated_at": "2026-11-14T11:27:02Z",
+  "workflow_run": "https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/43590066870",
+  "triggering_commit": "134821f9ecc28fdda6cce4f5859d813d1f2ab9da"
 }
