@@ -28,13 +28,15 @@ On a compatible Quest browser, open the same page from an HTTPS host and use the
 - Little Lenny destination preview state, reachable from the sign or the on-screen control.
 - Desktop fallback and reduced-motion-friendly HTML transition.
 - WebXR renderer session entry when supported by the browser/device.
+- Two WebXR controller ray pointers; pressing either controller's select/trigger event activates the Little Lenny destination, without relying on the desktop DOM controls.
 
 ## Deliberate limitations
 
 - The Lenny view is a placeholder destination, not the authored beach scene or a full retelling.
 - It does not yet resolve or validate the immutable Experience artifact identity at runtime.
 - It does not yet consume StoryBuilder composition output, canonical page/source IDs, or approved visual assets.
-- VR controller/hand ray selection, locomotion, audio, haptics, comfort settings, and session restoration remain future work.
+- Hand tracking, locomotion, audio, haptics, comfort settings, and session restoration remain future work.
+- Controller selection is implemented in code but has not been verified in a physical headset.
 - The Three.js scene is an implementation experiment behind the MyVR manifestation boundary, not a decision that MyVR's architecture is Three.js-specific.
 
 The next integration step is to replace the placeholder destination with a reader projection sourced from the existing Little Lenny Experience and its approved composition/assets. StoryBuilder remains the authoring authority; Experiences remains the Experience identity and lifecycle owner.
