@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06121c">
+  <title>The Singularity Workshop — MyVR Landing Prototype</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; overflow: hidden; color: #eafaff; background: #06121c; }
+    #threshold { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; padding: 2rem; background: radial-gradient(ellipse at center, #123044 0%, #07131e 58%, #02070c 100%); transition: opacity 1.2s ease, visibility 1.2s; }
+    #threshold.leaving { opacity: 0; visibility: hidden; }
+    .threshold-inner { width: min(900px, 94vw); text-align: center; }
+    .threshold-inner img { display: block; width: 100%; height: auto; filter: drop-shadow(0 0 28px #19d8f477); }
+    .threshold-inner p { color: #b7d7e2; letter-spacing: .18em; text-transform: uppercase; font-size: .75rem; }
+    button { color: #eaffff; background: #0b3344; border: 1px solid #4ddff0; border-radius: 999px; padding: .85rem 1.35rem; font: inherit; cursor: pointer; box-shadow: 0 0 24px #1ccce633; }
+    button:hover, button:focus-visible { background: #14516a; outline: 2px solid #a6f6ff; outline-offset: 3px; }
+    #enter { margin-top: 1.2rem; }
+    #scene { position: fixed; inset: 0; }
+    #hud { position: fixed; z-index: 2; left: 1.25rem; top: 1.25rem; max-width: min(360px, calc(100vw - 2.5rem)); padding: 1rem 1.1rem; background: #04131dcc; border: 1px solid #54c9dc55; border-radius: 14px; backdrop-filter: blur(12px); }
+    #hud h1 { margin: 0 0 .35rem; font-size: 1rem; letter-spacing: .12em; text-transform: uppercase; }
+    #hud p { margin: 0; color: #b9d6df; font-size: .88rem; line-height: 1.5; }
+    #actions { position: fixed; z-index: 2; right: 1.25rem; top: 1.25rem; display: flex; gap: .6rem; }
+    #hint { position: fixed; z-index: 2; bottom: 1.1rem; left: 50%; transform: translateX(-50%); color: #c5e4eb; background: #04131dcc; border: 1px solid #54c9dc55; border-radius: 999px; padding: .65rem 1rem; font-size: .8rem; text-align: center; white-space: nowrap; }
+    #status { position: fixed; z-index: 2; right: 1.25rem; bottom: 1.1rem; color: #9bbbc6; font-size: .72rem; }
+    @media (max-width: 600px) { #actions { top: auto; bottom: 4rem; right: 1rem; } #hint { bottom: .7rem; max-width: 90vw; white-space: normal; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+  </style>
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+</head>
+<body>
+  <section id="threshold" aria-label="Workshop entrance">
+    <div class="threshold-inner">
+      <img src="https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg" alt="The Singularity Workshop animated moniker">
+      <p>A place to enter, explore, and create</p>
+      <button id="enter">Enter the Workshop</button>
+    </div>
+  </section>
+  <div id="scene" aria-label="Interactive spatial Workshop landing scene"></div>
+  <section id="hud" hidden>
+    <h1>The Singularity Workshop</h1>
+    <p id="description">A living place for Experiences. Find a doorway and step into a world.</p>
+  </section>
+  <div id="actions" hidden>
+    <button id="lenny">Little Lenny</button>
+    <button id="home">Workshop</button>
+  </div>
+  <div id="hint" hidden>Look around · Select the glowing Lenny destination to approach it</div>
+  <div id="status">Desktop preview · WebXR requires a compatible secure browser</div>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { VRButton } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/webxr/VRButton.js';
+
+    const mount = document.querySelector('#scene');
+    const threshold = document.querySelector('#threshold');
+    const hud = document.querySelector('#hud');
+    const actions = document.querySelector('#actions');
+    const hint = document.querySelector('#hint');
+    const description = document.querySelector('#description');
+    const status = document.querySelector('#status');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x071b2a);
+    scene.fog = new THREE.Fog(0x071b2a, 18, 75);
+
+    const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, .1, 120);
+    camera.position.set(0, 1.65, 9);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(innerWidth, innerHeight);
+    renderer.xr.enabled = true;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    mount.appendChild(renderer.domElement);
+    document.body.appendChild(VRButton.createButton(renderer));
+
+    scene.add(new THREE.HemisphereLight(0x9deaff, 0x183044, 2.1));
+    const key = new THREE.DirectionalLight(0xffd9a3, 2.2);
+    key.position.set(-5, 9, 6); scene.add(key);
+
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(48, 96), new THREE.MeshStandardMaterial({ color: 0x173c48, roughness: .94 }));
+    ground.rotation.x = -Math.PI / 2; ground.position.y = -.08; scene.add(ground);
+    const water = new THREE.Mesh(new THREE.PlaneGeometry(120, 35), new THREE.MeshStandardMaterial({ color: 0x07516b, roughness: .32, metalness: .18 }));
+    water.rotation.x = -Math.PI / 2; water.position.set(0, .015, -25); scene.add(water);
+
+    // A ring of quiet architectural light makes the landing feel like a place, not a menu.
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(5.8, .035, 12, 120), new THREE.MeshBasicMaterial({ color: 0x25d9ec }));
+    ring.rotation.x = Math.PI / 2; ring.position.y = .04; scene.add(ring);
+    for (let i = 0; i < 18; i++) {
+      const a = i / 18 * Math.PI * 2;
+      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(.045, .09, 2.8 + (i % 3) * .4, 10), new THREE.MeshStandardMaterial({ color: 0x1b5261, emissive: 0x06313d, emissiveIntensity: .8 }));
+      pillar.position.set(Math.cos(a) * 8.5, 1.4, Math.sin(a) * 8.5);
+      scene.add(pillar);
+    }
+
+    const portal = new THREE.Group();
+    portal.position.set(0, 2.25, -7.5);
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(1.65, .12, 16, 80), new THREE.MeshStandardMaterial({ color: 0x53e8f4, emissive: 0x0a8798, emissiveIntensity: 1.8, metalness: .45, roughness: .25 }));
+    portal.add(arch);
+    const portalCore = new THREE.Mesh(new THREE.CircleGeometry(1.52, 64), new THREE.MeshBasicMaterial({ color: 0x0b7184, transparent: true, opacity: .26, side: THREE.DoubleSide }));
+    portalCore.position.z = -.04; portal.add(portalCore);
+    scene.add(portal);
+
+    const sign = new THREE.Group();
+    sign.position.set(5.2, 1.7, -4.5);
+    const signPanel = new THREE.Mesh(new THREE.BoxGeometry(2.7, 1.55, .12), new THREE.MeshStandardMaterial({ color: 0x092b39, emissive: 0x063c4a, emissiveIntensity: .8, roughness: .4 }));
+    sign.add(signPanel);
+    const signFrame = new THREE.Mesh(new THREE.BoxGeometry(2.82, 1.67, .08), new THREE.MeshStandardMaterial({ color: 0x39d8e8, emissive: 0x147b8b, emissiveIntensity: 1.2, metalness: .5 }));
+    signFrame.position.z = -.08; sign.add(signFrame); scene.add(sign);
+
+    function labelTexture(lines) {
+      const c = document.createElement('canvas'); c.width = 768; c.height = 384;
+      const x = c.getContext('2d');
+      x.fillStyle = '#082633'; x.fillRect(0,0,768,384);
+      x.textAlign = 'center'; x.fillStyle = '#e9fdff'; x.font = 'bold 54px system-ui';
+      x.fillText(lines[0],384,160); x.fillStyle = '#83dce7'; x.font = '28px system-ui'; x.fillText(lines[1],384,218);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+    }
+    const signText = new THREE.Mesh(new THREE.PlaneGeometry(2.55,1.35), new THREE.MeshBasicMaterial({ map: labelTexture(['LITTLE LENNY','The Big Ocean Problem']) }));
+    signText.position.set(5.2,1.7,-4.42); scene.add(signText);
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+
+    // WebXR controllers point into the same destination targets as desktop selection.
+    // Trigger/select is the interaction; no DOM HUD overlay is required in-headset.
+    const controllerLines = [];
+    for (let hand = 0; hand < 2; hand++) {
+      const controller = renderer.xr.getController(hand);
+      controller.addEventListener('select', () => {
+        raycaster.setFromXRController(controller);
+        const hits = raycaster.intersectObjects([signPanel, arch, portalCore], true);
+        if (hits.length) setMode('lenny');
+      });
+      const points = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)];
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x8af7ff, transparent: true, opacity: .8 }));
+      line.scale.z = 8;
+      controller.add(line);
+      controllerLines.push(line);
+      scene.add(controller);
+    }
+
+    let mode = 'landing';
+    function setMode(next) {
+      mode = next;
+      if (next === 'lenny') {
+        description.textContent = 'Destination preview: the beach where Lenny begins. The authored Experience content and approved visual assets will supply the finished story world.';
+        camera.position.set(0, 1.65, 2.8);
+        portal.position.set(0, 2.1, -5.5);
+        portal.scale.setScalar(1.22);
+        status.textContent = 'Lenny destination preview · provisional scene';
+      } else {
+        description.textContent = 'A living place for Experiences. Find a doorway and step into a world.';
+        camera.position.set(0, 1.65, 9);
+        portal.position.set(0, 2.25, -7.5);
+        portal.scale.setScalar(1);
+        status.textContent = 'Desktop preview · WebXR requires a compatible secure browser';
+      }
+    }
+    function selectAt(clientX, clientY) {
+      pointer.set((clientX / innerWidth) * 2 - 1, -(clientY / innerHeight) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
+      const hits = raycaster.intersectObjects([signPanel, arch, portalCore], true);
+      if (hits.length) setMode('lenny');
+    }
+    renderer.domElement.addEventListener('click', e => selectAt(e.clientX, e.clientY));
+    renderer.xr.addEventListener('sessionstart', () => status.textContent = 'Immersive session active · simulated scene content');
+    renderer.xr.addEventListener('sessionend', () => status.textContent = 'Immersive session ended');
+    document.querySelector('#enter').addEventListener('click', () => {
+      threshold.classList.add('leaving'); hud.hidden = false; actions.hidden = false; hint.hidden = false;
+    });
+    document.querySelector('#lenny').addEventListener('click', () => setMode('lenny'));
+    document.querySelector('#home').addEventListener('click', () => setMode('landing'));
+    addEventListener('resize', () => {
+      camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    });
+    renderer.setAnimationLoop(() => {
+      const t = performance.now() * .00035;
+      ring.rotation.z = t;
+      arch.rotation.z = Math.sin(t * 2) * .035;
+      portalCore.material.opacity = .18 + (Math.sin(t * 3) + 1) * .08;
+      renderer.render(scene, camera);
+    });
+  </script>
+</body>
+</html>
