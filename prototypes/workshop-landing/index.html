@@ -123,6 +123,26 @@
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
+
+    // WebXR controllers point into the same destination targets as desktop selection.
+    // Trigger/select is the interaction; no DOM HUD overlay is required in-headset.
+    const controllerLines = [];
+    for (let hand = 0; hand < 2; hand++) {
+      const controller = renderer.xr.getController(hand);
+      controller.addEventListener('select', () => {
+        raycaster.setFromXRController(controller);
+        const hits = raycaster.intersectObjects([signPanel, arch, portalCore], true);
+        if (hits.length) setMode('lenny');
+      });
+      const points = [new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)];
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const line = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: 0x8af7ff, transparent: true, opacity: .8 }));
+      line.scale.z = 8;
+      controller.add(line);
+      controllerLines.push(line);
+      scene.add(controller);
+    }
+
     let mode = 'landing';
     function setMode(next) {
       mode = next;
