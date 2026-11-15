@@ -139,8 +139,15 @@
 
     const readerButtonMaterial = new THREE.MeshBasicMaterial({ color: 0x167187 });
     function readerButton(x, label) {
-      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(.42, .2), readerButtonMaterial.clone());
-      mesh.position.set(x, -.88, .01);
+      const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 192;
+      const context = canvas.getContext('2d');
+      context.fillStyle = '#0d5366'; context.fillRect(0, 0, 512, 192);
+      context.strokeStyle = '#65e7f1'; context.lineWidth = 8; context.strokeRect(5, 5, 502, 182);
+      context.fillStyle = '#effcff'; context.font = 'bold 54px system-ui'; context.textAlign = 'center';
+      context.fillText(label.toUpperCase(), 256, 120);
+      const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(.62, .22), new THREE.MeshBasicMaterial({ map: texture }));
+      mesh.position.set(x, -.88, .02);
       mesh.userData.readerAction = label;
       readerGroup.add(mesh);
       return mesh;
@@ -164,16 +171,17 @@
         c.textAlign = 'center'; c.fillStyle = '#effcff'; c.font = 'bold 42px system-ui';
         c.fillText(slide.heading, 600, 150);
         c.textAlign = 'left'; c.fillStyle = '#d7edf2'; c.font = '30px system-ui';
+        const lineHeight = 39;
         let y = 225;
         for (const paragraph of slide.paragraphs) {
-          const words = paragraph.split(/\\s+/); let line = '';
+          const words = String(paragraph).split(/\\s+/); let line = '';
           for (const word of words) {
             const candidate = line ? line + ' ' + word : word;
             if (c.measureText(candidate).width > 1060 && line) { c.fillText(line, 70, y); y += lineHeight; line = word; }
             else line = candidate;
           }
-          if (line) { c.fillText(line, 70, y); y += 43; }
-          y += 22;
+          if (line) { c.fillText(line, 70, y); y += lineHeight; }
+          y += 18;
         }
       } else {
         c.textAlign = 'center'; c.fillStyle = '#effcff'; c.font = '36px system-ui';
@@ -192,17 +200,20 @@
         const response = await fetch('https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Experiences/development/experiences/Lenny/story.json');
         if (!response.ok) throw new Error('Experience source returned ' + response.status);
         const story = await response.json();
+        if (!Array.isArray(story.pages) || story.pages.length !== 33) throw new Error('Expected the authored 33-page story.');
         readerSlides = [
           { heading: story.title, paragraphs: [] },
           { heading: 'Dedication', paragraphs: [story.dedication] },
           ...story.pages.map(page => ({ heading: 'Page ' + page.number, paragraphs: page.paragraphs })),
           { heading: 'The End', paragraphs: story.closing.filter(line => line !== 'THE END') }
         ];
+        readerIndex = 0;
         drawReader();
       } catch (error) {
         readerSlides = [{ heading: 'Unable to load Little Lenny', paragraphs: ['The Experiences story source could not be reached. Return to the Workshop and try again when network access is available.'] }];
+        readerLoaded = false;
         drawReader();
-        status.textContent = 'Lenny reader unavailable · source fetch failed';
+        status.textContent = 'Lenny reader unavailable · ' + error.message;
       }
     }
 
@@ -232,6 +243,11 @@
       const controller = renderer.xr.getController(hand);
       controller.addEventListener('select', () => {
         raycaster.setFromXRController(controller);
+        if (readerGroup.visible) {
+          const readerHits = raycaster.intersectObjects(readerTargets, false);
+          if (readerHits.length) activateReaderTarget(readerHits[0].object);
+          return;
+        }
         const hits = raycaster.intersectObjects([signPanel, arch, portalCore], true);
         if (hits.length) setMode('lenny');
       });
@@ -248,22 +264,30 @@
     function setMode(next) {
       mode = next;
       if (next === 'lenny') {
-        description.textContent = 'Destination preview: the beach where Lenny begins. The authored Experience content and approved visual assets will supply the finished story world.';
+        description.textContent = 'Little Lenny · authored story reader. Use the world-space controls to turn pages.';
         camera.position.set(0, 1.65, 2.8);
         portal.position.set(0, 2.1, -5.5);
         portal.scale.setScalar(1.22);
-        status.textContent = 'Lenny destination preview · provisional scene';
+        readerGroup.visible = true;
+        status.textContent = 'Little Lenny · Experiences story projection';
+        loadLennyReader();
       } else {
         description.textContent = 'A living place for Experiences. Find a doorway and step into a world.';
         camera.position.set(0, 1.65, 9);
         portal.position.set(0, 2.25, -7.5);
         portal.scale.setScalar(1);
+        readerGroup.visible = false;
         status.textContent = 'Desktop preview · WebXR requires a compatible secure browser';
       }
     }
     function selectAt(clientX, clientY) {
       pointer.set((clientX / innerWidth) * 2 - 1, -(clientY / innerHeight) * 2 + 1);
       raycaster.setFromCamera(pointer, camera);
+      if (readerGroup.visible) {
+        const readerHits = raycaster.intersectObjects(readerTargets, false);
+        if (readerHits.length) activateReaderTarget(readerHits[0].object);
+        return;
+      }
       const hits = raycaster.intersectObjects([signPanel, arch, portalCore], true);
       if (hits.length) setMode('lenny');
     }
