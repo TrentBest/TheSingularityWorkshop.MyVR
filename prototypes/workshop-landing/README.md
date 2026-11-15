@@ -1,6 +1,6 @@
 # Workshop Landing Scene Prototype
 
-This is an early, runnable visual prototype of the MyVR arrival sequence:
+This is an early, runnable visual prototype of the MyVR arrival sequence. The first readable Little Lenny experience is the repository-root Pages reader (`/index.html`); this prototype explores the later spatial manifestation:
 
 1. The canonical animated Workshop moniker is the threshold.
 2. Entering reveals a spatial Workshop landing environment.
@@ -39,4 +39,4 @@ On a compatible Quest browser, open the same page from an HTTPS host and use the
 - Controller selection is implemented in code but has not been verified in a physical headset.
 - The Three.js scene is an implementation experiment behind the MyVR manifestation boundary, not a decision that MyVR's architecture is Three.js-specific.
 
-The next integration step is to bind the reader to an immutable published Experience identity and StoryBuilder composition/assets. StoryBuilder remains the authoring authority; Experiences remains the Experience identity and lifecycle owner.
+The Pages reader is the first place to read Lenny; this spatial prototype is the next manifestation. The next integration step is to bind both readers to an immutable published Experience identity and StoryBuilder composition/assets. StoryBuilder remains the authoring authority; Experiences remains the Experience identity and lifecycle owner.
