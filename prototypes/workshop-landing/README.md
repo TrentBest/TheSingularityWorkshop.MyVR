@@ -25,7 +25,7 @@ On a compatible Quest browser, open the same page from an HTTPS host and use the
 
 - Animated canonical moniker entrance, linked by source URL rather than copied into MyVR.
 - Spatial landing environment with horizon, water, light architecture, and an illuminated destination marker.
-- Little Lenny destination preview state, reachable from the sign or the on-screen control.
+- Little Lenny reader projection fetched from the existing Experiences `story.json`, preserving its title, dedication, 33 ordered story pages, and closing text.\n- World-space reader panel with previous/next/workshop controls; desktop pointer clicks and WebXR controller select events can operate the panel.
 - Desktop fallback and reduced-motion-friendly HTML transition.
 - WebXR renderer session entry when supported by the browser/device.
 - Two WebXR controller ray pointers; pressing either controller's select/trigger event activates the Little Lenny destination, without relying on the desktop DOM controls.
@@ -39,4 +39,4 @@ On a compatible Quest browser, open the same page from an HTTPS host and use the
 - Controller selection is implemented in code but has not been verified in a physical headset.
 - The Three.js scene is an implementation experiment behind the MyVR manifestation boundary, not a decision that MyVR's architecture is Three.js-specific.
 
-The next integration step is to replace the placeholder destination with a reader projection sourced from the existing Little Lenny Experience and its approved composition/assets. StoryBuilder remains the authoring authority; Experiences remains the Experience identity and lifecycle owner.
+The next integration step is to bind the reader to an immutable published Experience identity and StoryBuilder composition/assets. StoryBuilder remains the authoring authority; Experiences remains the Experience identity and lifecycle owner.
