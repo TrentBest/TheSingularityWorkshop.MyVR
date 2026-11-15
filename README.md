@@ -5,6 +5,8 @@
 [![Sith Policy](assets/sith-policy.svg)](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/workflows/sith-policy.yml)
 **MyVR is the VR-device manifestation of The Singularity Workshop.**
 
+[Open the Little Lenny Pages reader](https://trentbest.github.io/TheSingularityWorkshop.MyVR/) — the first readable manifestation of the existing Experience, before headset playtesting. The source is in [`index.html`](index.html).
+
 MyVR is a client specifically for VR-capable devices. It presents and interacts with Experiences without becoming the Experience runtime itself.
 
 ## Architecture
