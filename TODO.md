@@ -13,7 +13,7 @@ This is the working checklist for the first visible Lenny manifestation. It is i
 
 ## Second: workshop landing and spatial reader
 
-- [ ] Fix and exercise the current prototype's reader activation, rendering, and retry paths.
+- [x] Fix the current prototype's reader activation, rendering, and retry paths. (Browser exercise remains open.)
 - [ ] Keep the Workshop moniker as the entrance, then the reusable landing scene, then Lenny as a destination.
 - [ ] Make desktop navigation complete before treating WebXR controller input as usable.
 - [ ] Add source/page identity to the reader projection without creating a second manuscript model.
