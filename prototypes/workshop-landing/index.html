@@ -169,7 +169,7 @@
           const words = paragraph.split(/\\s+/); let line = '';
           for (const word of words) {
             const candidate = line ? line + ' ' + word : word;
-            if (c.measureText(candidate).width > 1060 && line) { c.fillText(line, 70, y); y += 43; line = word; }
+            if (c.measureText(candidate).width > 1060 && line) { c.fillText(line, 70, y); y += lineHeight; line = word; }
             else line = candidate;
           }
           if (line) { c.fillText(line, 70, y); y += 43; }
