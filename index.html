@@ -67,7 +67,7 @@ function render(){
  const slide=slides[index]; if(!slide)return;
  eyebrow.textContent=slide.label;heading.textContent=slide.heading;
  body.replaceChildren(...slide.paragraphs.map(value=>{const p=document.createElement('p');p.textContent=value;return p;}));
- body.style.fontSize='calc(clamp(1.1rem, 2.4vw, 1.35rem) * '+fontScale+')';
+ body.style.fontSize=(1.2*fontScale)+'rem';
  count.textContent=slide.counter;previous.disabled=index===0;next.disabled=index===slides.length-1;
  progress.style.width=((index+1)/slides.length*100)+'%';
  document.title=slide.heading+' — Little Lenny';
