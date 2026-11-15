@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06121c">
+<title>The Singularity Workshop — Little Lenny</title>
+<style>
+:root{color-scheme:dark;--ink:#eafaff;--muted:#b8d4de;--line:#276071;--panel:#0a202c;--glow:#47d9e9;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#164257 0,#091b29 48%,#030a10 100%);color:var(--ink)}
+a{color:#91ecf4}button{font:inherit;color:var(--ink);background:#103849;border:1px solid #3b9cac;border-radius:999px;padding:.7rem 1rem;cursor:pointer}button:hover,button:focus-visible,a:focus-visible{outline:2px solid #b3f7ff;outline-offset:3px}
+header{max-width:1100px;margin:auto;padding:1.5rem 1.25rem .5rem;text-align:center}header img{display:block;width:min(620px,90vw);height:auto;margin:0 auto 1rem;filter:drop-shadow(0 0 20px #20cce455)}header p{color:var(--muted);letter-spacing:.16em;text-transform:uppercase;font-size:.75rem}
+main{width:min(900px,calc(100% - 2rem));margin:1.5rem auto 4rem}
+.intro{text-align:center;margin:1.5rem auto 2rem}.intro h1{font-size:clamp(1.6rem,4vw,2.5rem);margin:.3rem 0}.intro p{color:var(--muted);line-height:1.6}
+.reader{background:linear-gradient(145deg,#0d2937,#071720);border:1px solid var(--line);border-radius:22px;box-shadow:0 20px 80px #0008;overflow:hidden}
+.reader-top{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:1rem 1.25rem;border-bottom:1px solid #24505c;color:#a7d9e2;font-size:.85rem}
+.progress{height:4px;background:#183743}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#31a9c1,#a3f6ee);transition:width .2s}
+.reading{min-height:390px;padding:clamp(1.5rem,5vw,3.5rem);display:flex;flex-direction:column;justify-content:center}
+.reading .eyebrow{text-align:center;color:#7ddbe7;text-transform:uppercase;letter-spacing:.16em;font-size:.72rem;margin:0 0 1rem}
+.reading h2{text-align:center;font-size:clamp(1.5rem,4vw,2.15rem);margin:0 0 1.8rem;line-height:1.2}
+.reading .body{max-width:680px;margin:0 auto;font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.1rem,2.4vw,1.35rem);line-height:1.8;color:#edf7f8}
+.reading .body p{margin:0 0 1.2rem}.reading .body p:last-child{margin-bottom:0}
+.controls{display:flex;justify-content:space-between;align-items:center;gap:.75rem;padding:1rem 1.25rem;border-top:1px solid #24505c}
+.controls .center{display:flex;gap:.5rem;align-items:center}.controls button:disabled{opacity:.35;cursor:not-allowed}
+footer{text-align:center;color:#91aeb9;font-size:.8rem;line-height:1.7;margin:1.5rem auto}
+#status{color:#f2c98b;text-align:center;padding:.5rem 1rem;font-size:.9rem}
+@media(max-width:560px){.reader-top{align-items:flex-start;flex-direction:column}.controls{flex-wrap:wrap}.controls .center{order:3;width:100%;justify-content:center}.reading{min-height:430px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+<img src="https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg" alt="The Singularity Workshop">
+<p>A place to enter, explore, and create</p>
+</header>
+<main>
+<section class="intro">
+<h1>Little Lenny and the Big Ocean Problem</h1>
+<p>Come in, take a seat, and turn the pages. This is the first readable manifestation of Lenny in the Workshop; the immersive scene will grow from the same Experience.</p>
+</section>
+<section class="reader" aria-label="Little Lenny reader">
+<div class="reader-top"><span id="book-title">Loading the authored Experience…</span><span id="page-count" aria-live="polite">—</span></div>
+<div class="progress" aria-hidden="true"><span id="progress"></span></div>
+<article class="reading" aria-live="polite" aria-atomic="true">
+<p class="eyebrow" id="eyebrow">The Singularity Workshop</p>
+<h2 id="heading">Little Lenny and the Big Ocean Problem</h2>
+<div class="body" id="body"><p>The story is loading.</p></div>
+</article>
+<div class="controls">
+<button id="previous" type="button" disabled>← Previous</button>
+<div class="center"><button id="smaller" type="button" aria-label="Smaller text">A−</button><button id="larger" type="button" aria-label="Larger text">A+</button></div>
+<button id="next" type="button" disabled>Next →</button>
+</div>
+</section>
+<p id="status" role="status"></p>
+<footer>
+<p>Story text is read from the existing Little Lenny Experience in the Experiences repository. This preview preserves its page order and wording; it does not replace the authoring source.</p>
+<p><a href="https://github.com/TrentBest/TheSingularityWorkshop.MyVR">MyVR source</a> · <a href="https://github.com/TrentBest/TheSingularityWorkshop.Experiences/tree/development/experiences/Lenny">Little Lenny Experience</a></p>
+</footer>
+</main>
+<script type="module">
+const source='https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Experiences/development/experiences/Lenny/story.json';
+const $=id=>document.getElementById(id);
+const title=$('book-title'),count=$('page-count'),eyebrow=$('eyebrow'),heading=$('heading'),body=$('body'),status=$('status'),progress=$('progress'),previous=$('previous'),next=$('next');
+let slides=[],index=0,fontScale=1;
+function render(){
+ const slide=slides[index]; if(!slide)return;
+ eyebrow.textContent=slide.label;heading.textContent=slide.heading;
+ body.replaceChildren(...slide.paragraphs.map(value=>{const p=document.createElement('p');p.textContent=value;return p;}));
+ body.style.fontSize='calc(clamp(1.1rem, 2.4vw, 1.35rem) * '+fontScale+')';
+ count.textContent=slide.counter;previous.disabled=index===0;next.disabled=index===slides.length-1;
+ progress.style.width=((index+1)/slides.length*100)+'%';
+ document.title=slide.heading+' — Little Lenny';
+}
+function step(delta){index=Math.max(0,Math.min(slides.length-1,index+delta));render();}
+previous.addEventListener('click',()=>step(-1));next.addEventListener('click',()=>step(1));
+$('smaller').addEventListener('click',()=>{fontScale=Math.max(.8,fontScale-.1);render();});
+$('larger').addEventListener('click',()=>{fontScale=Math.min(1.5,fontScale+.1);render();});
+document.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey)return;if(event.key==='ArrowLeft')step(-1);if(event.key==='ArrowRight')step(1);});
+async function start(){
+ try{
+  const response=await fetch(source,{cache:'no-store'});if(!response.ok)throw new Error('Story source returned '+response.status);
+  const story=await response.json();
+  if(!story||!Array.isArray(story.pages)||story.pages.length!==33)throw new Error('The source did not contain the expected 33-page story.');
+  title.textContent=story.title;
+  slides=[
+   {label:'The book',heading:story.title,paragraphs:[],counter:'Title'},
+   {label:'Dedication',heading:'For Mother Earth',paragraphs:[story.dedication],counter:'Dedication'},
+   ...story.pages.map(page=>({label:'Little Lenny and the Big Ocean Problem',heading:'',paragraphs:page.paragraphs,counter:'Page '+page.number})),
+   {label:'The End',heading:'The End',paragraphs:story.closing.filter(line=>line!=='THE END'),counter:'Closing'}
+  ];
+  render();
+ }catch(error){heading.textContent='The story could not be loaded';body.replaceChildren();status.textContent='Please check your connection and reload. '+error.message;title.textContent='Little Lenny';}
+}
+start();
+</script>
+</body>
+</html>
