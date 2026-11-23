@@ -7,7 +7,7 @@ These notes define implementation boundaries and evidence requirements. They do 
 ## Dependency direction
 
 ```text
-                 FSM_Foundry
+                 FSM_Execution
               shared host kernel
                      |
           +----------+----------+
@@ -23,9 +23,9 @@ These notes define implementation boundaries and evidence requirements. They do 
           ServerApp = optional remote compute host
 ```
 
-FSM_Foundry owns shared execution/loading lifecycle and orchestration. It must not depend on or special-case its consuming hosts. MyVR consumes the shared host contract and owns only VR-specific composition, device adapters, presentation, and lifecycle.
+FSM_Execution owns shared execution/loading lifecycle and orchestration. It must not depend on or special-case its consuming hosts. MyVR consumes the shared host contract and owns only VR-specific composition, device adapters, presentation, and lifecycle.
 
-Keep the portable MyVR device/session core independent of Foundry implementation details. Once the shared Foundry host contract is confirmed against [FSM_Foundry issue #20](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Foundry/issues/20), add only the narrow MyVR adapter needed to consume that lifecycle. Do not introduce Foundry execution policy, scheduling, artifact resolution, or composition into MyVR. Do not claim the adapter exists until its project/package/API reference is verified in source.
+Keep the portable MyVR device/session core independent of FSM_Execution implementation details. Once the shared FSM_Execution host contract is confirmed against [FSM_Execution issue #20](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Execution/issues/37), add only the narrow MyVR adapter needed to consume that lifecycle. Do not introduce FSM_Execution execution policy, scheduling, artifact resolution, or composition into MyVR. Do not claim the adapter exists until its project/package/API reference is verified in source.
 
 Experience semantics and artifact identity remain canonical upstream contracts. ServerApp is an optional remote computation host, not a peer client manifestation. Remote delegation must be explicit, bounded, user-authorized, and non-frame-critical.
 
