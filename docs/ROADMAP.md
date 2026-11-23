@@ -6,7 +6,7 @@ This roadmap describes ordered work, not proof of implementation. Use [issue #26
 
 ## Phase 0 — Architecture and shared host contract
 
-Define MyVR as a peer client host consuming FSM_Foundry. Confirm the concrete host contract with FSM_Foundry #20 and AnyApp #45. Keep FSM_Foundry consumer-agnostic; keep Experience semantics and artifact identity upstream; keep optional ServerApp remote-compute policy outside Foundry.
+Define MyVR as a peer client host consuming FSM_Execution. Confirm the concrete host contract with FSM_Execution #37 and AnyApp #45. Keep FSM_Execution consumer-agnostic; keep Experience semantics and artifact identity upstream; keep optional ServerApp remote-compute policy outside FSM_Execution.
 
 ## Phase 1 — Portable device/session boundary
 
