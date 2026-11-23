@@ -12,12 +12,12 @@ The visual emphasizes that VR is one manifestation in a capability arrangement, 
 
 ## Shared kernel and host responsibilities
 
-**FSM_Foundry is the shared execution/loading kernel.** It owns common execution lifecycle and orchestration. It must remain consumer-agnostic: no references, special cases, or host-specific policy for AnyApp, WebApp, ServerApp, or MyVR.
+**FSM_Execution is the shared execution/loading kernel.** It owns common execution lifecycle and orchestration. It must remain consumer-agnostic: no references, special cases, or host-specific policy for AnyApp, WebApp, ServerApp, or MyVR.
 
-AnyApp, WebApp, and MyVR are peer client/application hosts. Each consumes the shared kernel and provides its own runtime-specific host composition, adapters, presentation, and lifecycle facilities. **ServerApp is different:** it is an optional remote computation host, not a fourth client manifestation. Clients may discover it through explicit capability/offer contracts and delegate only bounded, non-frame-critical workloads with user consent. FSM_Foundry does not own remote placement policy.
+AnyApp, WebApp, and MyVR are peer client/application hosts. Each consumes the shared kernel and provides its own runtime-specific host composition, adapters, presentation, and lifecycle facilities. **ServerApp is different:** it is an optional remote computation host, not a fourth client manifestation. Clients may discover it through explicit capability/offer contracts and delegate only bounded, non-frame-critical workloads with user consent. FSM_Execution does not own remote placement policy.
 
 ```text
-                    FSM_Foundry
+                    FSM_Execution
                 shared host kernel
                        |
           +------------+------------+
@@ -37,7 +37,7 @@ The diagram is conceptual. Exact project/package/API references must be source-v
 
 Experience semantics, published artifact identity, and canonical contracts remain owned by their upstream domains. The canonical artifact identity is **BundleId + Version + ContentHash**. MyVR has a separate session identity and owns the VR manifestation and device-specific behavior.
 
-A VR device should not need to understand FSM_COS, MicroBundleRepository, or Foundry implementation details. MyVR consumes the appropriate shared host contract; it does not reproduce artifact resolution, composition, arbitration, scheduling, or the common execution lifecycle.
+A VR device should not need to understand FSM_COS, MicroBundleRepository, or FSM_Execution implementation details. MyVR consumes the appropriate shared host contract; it does not reproduce artifact resolution, composition, arbitration, scheduling, or the common execution lifecycle.
 
 ## MyVR-owned VR domain
 
@@ -63,7 +63,7 @@ MyVR may consume semantic GUI/interaction concepts where useful, but GUI Core mu
 
 ## Performance principle
 
-The portable computational substrate and the headset hot path have different constraints. Preserve broad framework/platform interoperability in shared foundations; optimize the VR path independently for frame-time predictability, allocation pressure, memory traffic, native interop, GPU synchronization, and latency. Do not move VR-specific assumptions into FSM_API or FSM_Foundry.
+The portable computational substrate and the headset hot path have different constraints. Preserve broad framework/platform interoperability in shared foundations; optimize the VR path independently for frame-time predictability, allocation pressure, memory traffic, native interop, GPU synchronization, and latency. Do not move VR-specific assumptions into FSM_API or FSM_Execution.
 
 ## Guiding principle
 
