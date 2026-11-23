@@ -27,9 +27,9 @@ Use [A Headless Session Walkthrough](04-headless-session-walkthrough.md) to run 
 
 Read [The Quest 2 Android Host Bootstrap](05-quest2-android-host-bootstrap.md). Trace loader initialization, extension checks, HMD system selection, runtime-selected Vulkan device creation, OpenXR session creation, Android lifecycle coordination, and the physical-device evidence gate.
 
-## 06 Ecosystem integration — a peer host of Foundry
+## 06 Ecosystem integration — a peer host of FSM_Execution
 
-Read [MyVR as a Peer Host of the Shared Runtime](06-myvr-as-a-peer-host.md). Understand the intended manifest → FSM_COS → RuntimeAssembly → FSM_Foundry → MyVR presentation flow, and why MyVR must not duplicate composition or workflow execution.
+Read [MyVR as a Peer Host of the Shared Runtime](06-myvr-as-a-peer-host.md). Understand the intended manifest → FSM_COS → RuntimeAssembly → FSM_Execution → MyVR presentation flow, and why MyVR must not duplicate composition or workflow execution.
 
 ## 07 Domain map — responsibilities, evidence, and implementation order
 
@@ -60,7 +60,7 @@ The Quest host candidate is [draft PR #16](https://github.com/TrentBest/TheSingu
 
 - **Source-implemented:** portable core contracts and the Android/OpenXR/Vulkan bootstrap described in Chapter 5.
 - **CI-verified:** only the build, test, and Android package checks explicitly recorded against an exact commit in PR #16.
-- **Conceptual / not integrated:** the shared manifest → FSM_COS → RuntimeAssembly → FSM_Foundry → MyVR host handoff described in Chapter 6.
+- **Conceptual / not integrated:** the shared manifest → FSM_COS → RuntimeAssembly → FSM_Execution → MyVR host handoff described in Chapter 6.
 - **Not implemented in the current host candidate:** swapchain, frame loop, frame submission, spatial rendering, live tracking, and controller/hand input.
 - **Not hardware-verified:** no physical Quest 2 runtime initialization, lifecycle, rendering, tracking, or input evidence has been recorded.
 
