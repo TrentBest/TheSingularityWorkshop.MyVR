@@ -25,7 +25,7 @@ Experience manifest + configuration
       composition / RuntimeAssembly
               |
               v
-          FSM_Foundry
+          FSM_Execution
     shared execution lifecycle
               |
               v
@@ -33,7 +33,7 @@ Experience manifest + configuration
    VR host / device / presentation
 ```
 
-FSM_Foundry is the shared host kernel. It must remain unaware of AnyApp, WebApp, ServerApp, and MyVR. Those are peer hosts. MyVR supplies the VR-specific adapter and manifestation; it does not fork shared loading or execution lifecycle.
+FSM_Execution is the shared host kernel. It must remain unaware of AnyApp, WebApp, ServerApp, and MyVR. Those are peer hosts. MyVR supplies the VR-specific adapter and manifestation; it does not fork shared loading or execution lifecycle.
 
 The flow above is the target architecture. The typed handoff and end-to-end integration are not yet source-verified in MyVR.
 
@@ -54,7 +54,7 @@ The flow above is the target architecture. The typed handoff and end-to-end inte
 | Haptics and spatial audio | Not implemented | Add only against demonstrated device capabilities and Experience requirements |
 | Experience capability negotiation and semantic events | Portable capability snapshots exist, but no canonical manifest negotiation or live semantic event path is integrated | Coordinate with Experiences and FSM_UserIO; recognition is not authorization |
 | Companion connectivity and offline behavior | Architectural constraints exist; no complete bounded companion protocol is integrated | Standalone MyVR must remain useful without AnyApp, WebApp, or network; delegated work must be explicit and non-frame-critical |
-| Shared composition and execution | Described as target architecture; no MyVR FSM_COS → FSM_Foundry integration test exists | Consume the typed RuntimeAssembly handoff; never implement a second composer or scheduler |
+| Shared composition and execution | Described as target architecture; no MyVR FSM_COS → FSM_Execution integration test exists | Consume the typed RuntimeAssembly handoff; never implement a second composer or scheduler |
 
 ### Evidence vocabulary
 
@@ -72,13 +72,13 @@ These are separate dimensions, not a ladder where one automatically implies the 
 
 ### The RuntimeAssembly handoff is a real integration gap
 
-The upstream contracts have now been checked against their current development documentation and the owning Foundry integration issue:
+The upstream contracts have now been checked against their current development documentation and the owning FSM_Execution integration issue:
 
 - FSM_COS accepts a runtime manifest and catalog, resolves the requested MicroBundles and dependency closure, performs bounded arbitration, and returns a `RuntimeAssembly`. That result represents successful composition; it is not an application execution lifecycle.
-- FSM_Foundry's current documented sequential runner accepts a `WorkflowDefinition` and bounded `WorkflowExecutionContext`, then invokes host-registered named handlers. It owns workflow validation, execution ordering, cancellation, lifecycle, and structured outcomes.
-- The two shapes are not interchangeable. The current Foundry contract does not yet accept or execute an FSM_COS `RuntimeAssembly`; the typed handoff is tracked by [FSM_Foundry #23](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Foundry/issues/23).
+- FSM_Execution's current documented sequential runner accepts a `WorkflowDefinition` and bounded `WorkflowExecutionContext`, then invokes host-registered named handlers. It owns workflow validation, execution ordering, cancellation, lifecycle, and structured outcomes.
+- The two shapes are not interchangeable. The current FSM_Execution contract does not yet accept or execute an FSM_COS `RuntimeAssembly`; the typed handoff is tracked by [FSM_Execution #23](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Execution/issues/23).
 
-Therefore MyVR must not flatten bundle semantics into arbitrary workflow JSON, hand-wire a second execution loop, or claim that the target arrow above is integrated. The next valid step is an agreed typed handoff in the shared Foundry/COS boundary, with deterministic integration tests for cancellation, failure, and cleanup. MyVR then supplies a VR host adapter and presentation; it does not own that handoff's execution semantics. See [MyVR #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27).
+Therefore MyVR must not flatten bundle semantics into arbitrary workflow JSON, hand-wire a second execution loop, or claim that the target arrow above is integrated. The next valid step is an agreed typed handoff in the shared FSM_Execution/COS boundary, with deterministic integration tests for cancellation, failure, and cleanup. MyVR then supplies a VR host adapter and presentation; it does not own that handoff's execution semantics. See [MyVR #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27).
 
 ## 04 See it in a minute — trace the existing portable core
 
@@ -127,14 +127,14 @@ Once the physical bootstrap passes, advance the VR domain in dependency order:
 6. **Play-space model:** Experience-declared clearance recommendation, MyVR-owned local boundary presentation, and explicit relationship to the platform Guardian.
 7. **Haptics and spatial audio:** capability-gated affordances with graceful fallback.
 8. **Companion and offline behavior:** prove standalone operation first, then add bounded, authenticated, non-frame-critical delegation.
-9. **Shared runtime integration:** consume the agreed manifest → FSM_COS → RuntimeAssembly → FSM_Foundry contract and prove cancellation/cleanup in an end-to-end test.
+9. **Shared runtime integration:** consume the agreed manifest → FSM_COS → RuntimeAssembly → FSM_Execution contract and prove cancellation/cleanup in an end-to-end test.
 
 Do not reverse this order by building a large scene or interaction layer on top of an unverified session substrate.
 
 ## Implementation coordination
 
 - [MyVR domain and peer-host architecture issue #26](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/26) tracks the broad responsibility map.
-- [Manifest-to-Foundry integration issue #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27) tracks the typed runtime handoff.
+- [Manifest-to-FSM_Execution integration issue #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27) tracks the typed runtime handoff.
 - [Quest 2 standalone proof issue #14](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/14) tracks the first complete headset Experience.
 - [Play-space boundary draft PR #18](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/18) documents the Experience-scaled clearance boundary and its current non-implementation.
 - [Quest Android host draft PR #16](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/16) contains the candidate host implementation and its explicit hardware gate.
