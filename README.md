@@ -10,14 +10,14 @@ MyVR is a client for presenting and interacting with Experiences through VR-capa
 
 ![MyVR capability arrangement](docs/assets/myvr-capability-arrangement.svg)
 
-**FSM_Foundry** is the shared execution/loading kernel. It owns common orchestration and execution lifecycle without knowing which host consumes it.
+**FSM_Execution** is the shared execution/loading kernel. It owns common orchestration and execution lifecycle without knowing which host consumes it.
 
 - **WebApp** — browser manifestation, discovery, distribution, and browser-native capabilities.
 - **AnyApp** — desktop manifestation, local services, persistence, artifact caching, and local delegated computation.
 - **MyVR** — VR-device manifestation, immersive presentation, spatial interaction, and device capabilities.
 - **ServerApp** — optional remote computation host, discovered through explicit capability offers; it is not another client manifestation.
 
-AnyApp, WebApp, and MyVR are peer client hosts. Each consumes shared kernel contracts and supplies its own runtime-specific composition, adapters, presentation, and lifecycle. ServerApp may provide bounded remote computation when explicitly offered and authorized. FSM_Foundry does not decide remote placement policy.
+AnyApp, WebApp, and MyVR are peer client hosts. Each consumes shared kernel contracts and supplies its own runtime-specific composition, adapters, presentation, and lifecycle. ServerApp may provide bounded remote computation when explicitly offered and authorized. FSM_Execution does not decide remote placement policy.
 
 The canonical artifact identity is **BundleId + Version + ContentHash**. A MyVR session has its own session identity. Experience semantics and artifact identity remain with their canonical upstream contracts; MyVR owns only their VR manifestation and device-specific behavior.
 
@@ -27,7 +27,7 @@ MyVR must operate independently when the Experience requirements can be satisfie
 
 ## VR engineering boundary
 
-MyVR owns device/runtime discovery, capability negotiation, Android/Quest and OpenXR lifecycle, frame timing and submission, tracking/input, spatial coordinate and play-space handling, VR presentation, haptics, and spatial audio. Those responsibilities must not migrate into FSM_Foundry or upstream portable contracts.
+MyVR owns device/runtime discovery, capability negotiation, Android/Quest and OpenXR lifecycle, frame timing and submission, tracking/input, spatial coordinate and play-space handling, VR presentation, haptics, and spatial audio. Those responsibilities must not migrate into FSM_Execution or upstream portable contracts.
 
 The architecture is engine-neutral. Runtime-specific APIs belong behind MyVR-owned adapters. Keep frame-critical work local to the headset; optimize allocations, memory traffic, scheduling, native interop, GPU synchronization, and latency without contaminating the portable computational substrate with VR assumptions.
 
