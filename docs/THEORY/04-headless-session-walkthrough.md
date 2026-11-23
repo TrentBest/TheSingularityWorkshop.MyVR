@@ -71,7 +71,7 @@ The test project is hardware-free. It covers identity validation/equality, capab
 | Capability snapshot | `DeviceCapabilities` | Deterministic unit tests |
 | Runtime adapter seam | `IDeviceRuntimeAdapter` | Fake adapter contract test |
 | Android Activity and OpenXR/Vulkan host | `MyVR.Quest2.Android` in draft PR #16 | CI build/package only; physical device unverified |
-| Shared Experience composition and execution | FSM_COS and FSM_Foundry | Not yet integrated by MyVR |
+| Shared Experience composition and execution | FSM_COS and FSM_Execution | Not yet integrated by MyVR |
 
 The current Quest implementation is in [draft PR #16](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/pull/16), not in the canonical `development` branch. The [core CI workflow](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41227205130) and [Quest Android workflow](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/41227205152) passed for PR head `8c0dd80f9a51ab90fac034c435ed15134cdce949`. These runs are candidate evidence, not a release or hardware claim.
 
