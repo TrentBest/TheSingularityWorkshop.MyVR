@@ -39,7 +39,7 @@ Experience manifest + configuration
    composition / RuntimeAssembly
               |
               v
-         FSM_Foundry
+         FSM_Execution
    shared execution lifecycle
               |
               v
@@ -47,7 +47,7 @@ Experience manifest + configuration
    VR host / device / presentation
 ```
 
-The important boundary is the typed `RuntimeAssembly` handoff. FSM_COS is responsible for composing the runtime assembly from the manifest and configuration. FSM_Foundry owns the common execution lifecycle and orchestration. MyVR consumes the prepared runtime through a host-facing contract and contributes VR-specific behavior.
+The important boundary is the typed `RuntimeAssembly` handoff. FSM_COS is responsible for composing the runtime assembly from the manifest and configuration. FSM_Execution owns the common execution lifecycle and orchestration. MyVR consumes the prepared runtime through a host-facing contract and contributes VR-specific behavior.
 
 The diagram is the **target architecture**, not a claim that these references and calls are implemented in MyVR today.
 
@@ -57,8 +57,8 @@ The diagram is the **target architecture**, not a claim that these references an
 |---|---|---|
 | Experience artifact identity and manifest semantics | Experiences / canonical artifact contracts | Consumes stable identity and declared requirements |
 | MicroBundle discovery and composition | FSM_COS and its repository/domain contracts | Does not implement a second composer |
-| Runtime assembly handoff | FSM_COS → FSM_Foundry contract | Receives the typed result through the agreed integration |
-| Shared execution lifecycle and orchestration | FSM_Foundry | Consumes; does not fork or reschedule it |
+| Runtime assembly handoff | FSM_COS → FSM_Execution contract | Receives the typed result through the agreed integration |
+| Shared execution lifecycle and orchestration | FSM_Execution | Consumes; does not fork or reschedule it |
 | VR application/device lifecycle | MyVR | Owns |
 | OpenXR, Android, Vulkan device adaptation | MyVR device host | Owns behind platform boundary |
 | Spatial presentation and immediate VR interaction | MyVR + presentation domains | Owns the VR manifestation boundary |
@@ -71,7 +71,7 @@ A user selects an Experience for immersive presentation.
 1. The Experience is identified by its canonical artifact identity and declares the capabilities it needs.
 2. The manifest and configuration are supplied to FSM_COS.
 3. FSM_COS composes the required MicroBundles and produces the typed runtime assembly.
-4. FSM_Foundry accepts that assembly and owns the shared execution lifecycle.
+4. FSM_Execution accepts that assembly and owns the shared execution lifecycle.
 5. MyVR initializes or resumes its device host, evaluates its local presentation capabilities, and attaches the VR manifestation through the host contract.
 6. MyVR translates permitted device observations into bounded semantic interactions. It does not interpret a controller button as blanket authorization.
 7. If a required VR capability is unavailable, MyVR reports a host capability failure or graceful degradation according to the Experience contract. It does not silently substitute a different Experience or create a competing runtime.
@@ -89,31 +89,31 @@ The companion AnyApp may supply explicitly delegated, non-frame-critical service
 **Not yet integrated or verified in MyVR:**
 - manifest/configuration ingestion through the canonical Experience contract;
 - FSM_COS composition and typed RuntimeAssembly handoff;
-- FSM_Foundry execution lifecycle integration;
-- an end-to-end integration test spanning FSM_COS, Foundry, and MyVR;
+- FSM_Execution execution lifecycle integration;
+- an end-to-end integration test spanning FSM_COS, FSM_Execution, and MyVR;
 - a VR presentation adapter consuming a live runtime assembly;
 - semantic controller/hand input and bounded Experience events.
 
-The MyVR repository tracks this work in [issue #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27) and the wider peer-host/device domain in [issue #26](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/26). The typed handoff is coordinated with [FSM_Foundry issue #23](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Foundry/issues/23). The conceptual cross-host plan is also tracked in [The issue #33](https://github.com/TrentBest/The/issues/33).
+The MyVR repository tracks this work in [issue #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27) and the wider peer-host/device domain in [issue #26](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/26). The typed handoff is coordinated with [FSM_Execution issue #23](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Execution/issues/23). The conceptual cross-host plan is also tracked in [The issue #33](https://github.com/TrentBest/The/issues/33).
 
 The Quest Android host candidate is still a draft PR and has not been physically verified on a Quest 2. Successful CI packaging is not a runtime or integration test.
 
 ## Practice
 
-1. Why should FSM_Foundry remain unaware of MyVR, AnyApp, and WebApp?
-2. What should MyVR receive from FSM_Foundry rather than reconstruct itself?
+1. Why should FSM_Execution remain unaware of MyVR, AnyApp, and WebApp?
+2. What should MyVR receive from FSM_Execution rather than reconstruct itself?
 3. Which MyVR responsibilities remain valid even if the Experience runtime is headless?
 4. Why is controller recognition different from authorization?
 5. What would an integration test need to prove before this target flow can be called implemented?
 
-**Exercise:** draw the exact object and lifecycle handoff between FSM_COS, FSM_Foundry, and MyVR after reading their current public contracts. Replace each conceptual arrow with the actual interface/type name. If an arrow has no implemented contract yet, label it as a gap rather than inventing an API.
+**Exercise:** draw the exact object and lifecycle handoff between FSM_COS, FSM_Execution, and MyVR after reading their current public contracts. Replace each conceptual arrow with the actual interface/type name. If an arrow has no implemented contract yet, label it as a gap rather than inventing an API.
 
 ## Further reading
 
 - [Theory index](README.md)
 - [MyVR architecture issue #26](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/26)
-- [Manifest-to-Foundry integration issue #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27)
-- [FSM_Foundry typed RuntimeAssembly handoff issue #23](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Foundry/issues/23)
+- [Manifest-to-FSM_Execution integration issue #27](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/issues/27)
+- [FSM_Execution typed RuntimeAssembly handoff issue #23](https://github.com/TrentBest/TheSingularityWorkshop.FSM_Execution/issues/23)
 - [The cross-host plan issue #33](https://github.com/TrentBest/The/issues/33)
 
 ---
