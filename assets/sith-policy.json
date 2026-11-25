@@ -25,7 +25,7 @@
   ],
   "branch_count": 16,
   "status": "NON-COMPLIANT",
-  "evaluated_at": "2026-11-24T14:51:00Z",
-  "workflow_run": "https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/45418646805",
-  "triggering_commit": "768156228bfb4cf071a478a8d8de726e41da4750"
+  "evaluated_at": "2026-11-25T14:17:37Z",
+  "workflow_run": "https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/runs/45632419578",
+  "triggering_commit": "fb159c21b39eed95797cc284aad74afe51425539"
 }
