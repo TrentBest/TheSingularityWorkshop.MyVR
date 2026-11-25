@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/TrentBest">
+  <a href="https://trentbest.github.io/TheSingularityWorkshop.MyVR/">
     <img src="https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg" alt="The Singularity Workshop animated moniker" width="720" />
   </a>
 </p>
