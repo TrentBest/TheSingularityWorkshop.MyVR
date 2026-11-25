@@ -11,7 +11,7 @@ The core currently contains:
 - immutable Experience artifact identity: BundleId + Version + ContentHash;
 - a separate MyVR session GUID and explicit immersive-session lifecycle;
 - immutable device capability snapshots with adapter-owned capability names;
-- IDeviceRuntimeAdapter, the narrow boundary for device/runtime integrations;
+- IDeviceRuntimeAdapter, the narrow boundary for device/runtime integrations;\n- DeviceSessionLifecycleBridge, which coordinates Android host lifecycle observations with the portable session state;\n- typed tactical command contracts and a bounded command workflow with an adapter seam for host-owned execution;
 - deterministic tests using a fake runtime adapter, without a headset or companion.
 
 The core has no compile-time dependency on FSM_COS, FSM_UserIO, GUI, AnyApp, a VR SDK, or a repository client.
@@ -57,7 +57,7 @@ MyVR.Core (.NET 8, portable)
 
 A future semantic-input adapter may translate device observations into FSM_UserIO semantic values. Keep that integration outside the device-independent core until the exact package/version/source and dependency direction pass the required CiAi dependency-policy gate (MyVR issue #6 / CiAi issue #21). A semantic intent is not authorization or execution permission.
 
-## First executable core slice
+## Tactical command boundary\n\nThe portable core describes tactical commands and validates their workflow. It does not grant permission or perform real-world actions. A host adapter owns authorization, device-specific interpretation, and execution effects; the core remains device-independent.\n\n## First executable core slice
 
 Implemented:
 
