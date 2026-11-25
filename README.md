@@ -2,7 +2,7 @@
 
 # TheSingularityWorkshop.MyVR
 
-[![Build and test](https://img.shields.io/github/actions/workflow/status/TrentBest/TheSingularityWorkshop.MyVR/ci.yml?branch=development&style=flat-square&logo=github)](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/workflows/ci.yml)
+[![Sith Policy](assets/sith-policy.svg)](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/workflows/sith-policy.yml)\n[![Build and test](https://img.shields.io/github/actions/workflow/status/TrentBest/TheSingularityWorkshop.MyVR/ci.yml?branch=development&style=flat-square&logo=github)](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## 01 What
@@ -49,7 +49,7 @@ The architecture is intentionally engine-neutral. WebXR, native VR APIs, OpenXR,
 
 The first executable slice is a **headless, engine-neutral .NET 8 core**:
 
-- implemented: immutable Experience identity, a separate MyVR session identity, immutable capability snapshots, a device/runtime adapter boundary, and validated session lifecycle transitions;
+- implemented: immutable Experience identity, a separate MyVR session identity, immutable capability snapshots, a device/runtime adapter boundary, and validated session lifecycle transitions;\n- implemented: typed tactical command contracts, a bounded command workflow, and a host adapter seam; the host remains responsible for authorization and real-world effects;
 - simulated: capability reporting through a deterministic fake adapter in the test suite;
 - implemented but not yet verified on physical hardware: a standalone Quest 2 Android/OpenXR host bootstrap, including loader initialization, HMD discovery, runtime-selected Vulkan device creation, OpenXR session creation, and Android/OpenXR lifecycle handling;
 - not yet implemented: swapchain creation, frame submission, spatial rendering, live tracking, or controller/hand input;
@@ -70,7 +70,7 @@ This verifies the portable lifecycle and adapter contract; it does not verify a 
 ## 05 Documentation and theory
 
 - [Architecture](docs/ARCHITECTURE.md)
-- [Quest 2 Android host bootstrap and first-device test](docs/QUEST2_ANDROID_HOST_BOOTSTRAP.md)
+- [Quest 2 Android host bootstrap and first-device test](docs/QUEST2_ANDROID_HOST_BOOTSTRAP.md)\n- [Quest 2 OpenXR host feasibility](docs/QUEST2_OPENXR_HOST_FEASIBILITY.md)
 - [Experience Manifestation](docs/EXPERIENCE_MANIFESTATION.md)
 - [VR Boundary](docs/VR_BOUNDARY.md)
 - [AnyApp Companion](docs/ANYAPP_COMPANION.md)
