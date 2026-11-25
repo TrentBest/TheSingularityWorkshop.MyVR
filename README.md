@@ -1,7 +1,12 @@
-![The Singularity Workshop animated moniker](https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg)
+<p align="center">
+  <a href="https://trentbest.github.io/TheSingularityWorkshop.MyVR/">
+    <img src="https://raw.githubusercontent.com/TrentBest/TheSingularityWorkshop.Renderer/development/docs/assets/moniker.svg" alt="The Singularity Workshop animated moniker" width="720" />
+  </a>
+</p>
 
 # TheSingularityWorkshop.MyVR
 
+[![Sith Policy](assets/sith-policy.svg)](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/workflows/sith-policy.yml)
 [![Build and test](https://img.shields.io/github/actions/workflow/status/TrentBest/TheSingularityWorkshop.MyVR/ci.yml?branch=development&style=flat-square&logo=github)](https://github.com/TrentBest/TheSingularityWorkshop.MyVR/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -50,10 +55,11 @@ The architecture is intentionally engine-neutral. WebXR, native VR APIs, OpenXR,
 The first executable slice is a **headless, engine-neutral .NET 8 core**:
 
 - implemented: immutable Experience identity, a separate MyVR session identity, immutable capability snapshots, a device/runtime adapter boundary, and validated session lifecycle transitions;
+- implemented: typed tactical command contracts, a bounded command workflow, and an adapter seam for host-owned tactical execution;
 - simulated: capability reporting through a deterministic fake adapter in the test suite;
 - not yet implemented or verified: a concrete headset/runtime adapter, device deployment, spatial rendering, live tracking, or hardware input.
 
-The core has no FSM_COS, FSM_UserIO, GUI, AnyApp, or VR SDK dependency. MyVR does not compose Experiences or own workflow execution.
+The core has no FSM_COS, FSM_UserIO, GUI, AnyApp, or VR SDK dependency. MyVR does not compose Experiences or own workflow execution. The host remains responsible for authorization and the real-world effects of any proposed command.
 
 ## 04 See it in a minute
 
@@ -63,7 +69,7 @@ Install the .NET 8 SDK, then run the deterministic, hardware-free tests:
 dotnet test tests/MyVR.Core.Tests/MyVR.Core.Tests.csproj --configuration Release
 ```
 
-This verifies the portable lifecycle and adapter contract; it does not verify a headset or VR runtime.
+This verifies the portable lifecycle and tactical-command contracts; it does not verify a headset or VR runtime.
 
 ## 05 Documentation and theory
 
@@ -80,8 +86,8 @@ The implementation follows the boundaries above. See [the roadmap](docs/ROADMAP.
 ---
 
 <p align="center">
-  <a href="https://github.com/TrentBest/TheSingularityWorkshop" aria-label="The Singularity Workshop living avatar">
-    <img src="https://raw.githubusercontent.com/TrentBest/WebPage/development/TheSingularityWorkshop/wwwroot/Images/TheSingularityWorkshopLivingAvatar.svg" alt="The Singularity Workshop living avatar — a digital vortex converging on its central eye" width="112" />
+  <a href="https://github.com/TrentBest">
+    <img src="https://raw.githubusercontent.com/TrentBest/FSM_API/master/Documentation/Branding/TheSingularityWorkshop.png" alt="The Singularity Workshop" width="240" />
   </a><br />
   <strong>The Singularity Workshop</strong><br />
   <em>If a picture is worth a thousand words, what is a living picture worth?</em><br />
