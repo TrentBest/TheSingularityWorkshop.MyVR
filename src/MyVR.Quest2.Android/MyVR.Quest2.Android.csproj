@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>MyVR.Quest2.Android</RootNamespace>
+    <ApplicationTitle>MyVR Quest 2 Host</ApplicationTitle>
+    <ApplicationId>org.thesingularityworkshop.myvr.quest2</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>0.1.0</ApplicationDisplayVersion>
+    <SupportedOSPlatformVersion>29.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion>29.0</TargetPlatformMinVersion>
+    <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../MyVR.Core/MyVR.Core.csproj" />
+    <PackageReference Include="Silk.NET.OpenXR" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.OpenXR.Extensions.KHR" Version="2.23.0" />
+    <PackageReference Include="Silk.NET.Vulkan" Version="2.23.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Khronos' Android loader is a native AAR, not a Silk.NET binding. -->
+    <AndroidMavenLibrary Include="org.khronos.openxr:openxr_loader_for_android"
+                         Version="1.1.62"
+                         Bind="false" />
+  </ItemGroup>
+</Project>
