@@ -16,7 +16,7 @@ Implemented in the portable .NET 8 core:
 - [x] Immutable capability snapshot with adapter-owned capability names.
 - [x] Device/runtime adapter interface; fake adapter exercised by tests.
 - [x] Separate immutable Experience identity and MyVR session identity.
-- [x] Explicit session lifecycle with invalid-transition rejection, suspend/resume, disconnect, and reconnect tests.
+- [x] Explicit session lifecycle with invalid-transition rejection, suspend/resume, disconnect, and reconnect tests.\n- [x] Typed tactical command contracts, bounded workflow validation, and a host adapter seam; authorization and execution effects remain host-owned.
 - [x] Pull-request and development build/test workflow.
 
 Implemented in the separate Quest 2 Android host:
